@@ -1,0 +1,55 @@
+Usage of ./networkQuality:
+  -config string
+    	name/IP of responsiveness configuration server. (default "networkquality.example.com")
+  -connect-to string
+    	address (hostname or IP) to connect to (overriding DNS). Disabled by default.
+  -debug
+    	Enable debugging.
+  -extended-stats
+    	Enable the collection and display of extended statistics -- may not be available on certain platforms.
+  -insecure-skip-verify
+    	Enable server certificate validation. (default true)
+  -logger-filename string
+    	Store granular information about tests results in files with this basename. Time and information type will be appended (before the first .) to create separate log files. Disabled by default.
+  -path string
+    	path on the server to the configuration endpoint. (default "config")
+  -port int
+    	port number on which to access responsiveness configuration server. (default 4043)
+  -profile string
+    	Enable client runtime profiling and specify storage location. Disabled by default.
+  -prometheus-stats-filename string
+    	If filename specified, prometheus stats will be written. If specified file exists, it will be overwritten.
+  -quality-attenuation
+    	Print quality attenuation information.
+  -relative-rpm
+    	Calculate a relative RPM.
+  -rpm.id int
+    	Duration of the interval between re-evaluating the network conditions (in seconds). (default 1)
+  -rpm.mad int
+    	Moving average distance -- number of intervals considered during stability calculations. (default 4)
+  -rpm.mnp int
+    	Maximimum number of parallel connections to establish when attempting to reach working conditions. (default 16)
+  -rpm.mps int
+    	Maximimum number of probes to send per second. (default 100)
+  -rpm.p int
+    	Percentile of results to consider when calculating responsiveness. (default 90)
+  -rpm.parallel
+    	Parallel test execution policy.
+  -rpm.ptc float
+    	Percentage of the (discovered) total network capacity that probes are allowed to consume. (default 0.05)
+  -rpm.sdt float
+    	Cutoff in the standard deviation of measured values about network conditions between unstable and stable. (default 5)
+  -rpm.timeout int
+    	Maximum time (in seconds) to spend calculating RPM (i.e., total test time.). (default 20)
+  -rpm.tmp uint
+    	Percent of measurements to trim when calculating statistics about network conditions (between 0 and 100). (default 5)
+  -ssl-key-file string
+    	Store the per-session SSL key files in this file.
+  -url string
+    	configuration URL (takes precedence over other configuration parts)
+  -version
+    	Show version.
+  -with-l4s
+    	Use L4S (with default TCP prague congestion control algorithm.)
+  -with-l4s-algorithm string
+    	Use L4S (with specified congestion control algorithm.)
