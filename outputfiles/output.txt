@@ -1,365 +1,121 @@
 Testing network environment VDSL 100 40 5 5
-05-04-2026 09:50:59 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4327 (P90)
-Unbounded Baseline RPM:  5468 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4334 (P90)
-Baseline RPM:  5488 (Single-Sided 5% Trimmed Mean)
+05-06-2026 10:03:58 UTC Go Responsiveness to networkquality.example.com:4043...
+Unbounded Baseline RPM:  4222 (P90)
+Unbounded Baseline RPM:  4433 (Single-Sided 5% Trimmed Mean)
+Baseline RPM:  4214 (P90)
+Baseline RPM:  4435 (Single-Sided 5% Trimmed Mean)
 Results:
 ========
 Download:
-	Throughput: 88.991 Mbps (11.124 MBps), using 16 parallel connections.
-	RPM: 346 (P90)
-	RPM: 653 (Single-Sided 5% Trimmed Mean)
+	Note: Test did not run to stability (responsiveness), these results are estimates.
+	Throughput: 89.370 Mbps (11.171 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1448
+		Maximum Recv MSS:      1448
+		Total Retransmissions: 0
+		Total Reorderings:     48
+		Average RTT:           16348.9375
+	RPM: 306 (P90)
+	RPM: 615 (Single-Sided 5% Trimmed Mean)
 ========
 Upload:
 	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 34.345 Mbps (4.293 MBps), using 16 parallel connections.
+	Throughput: 36.343 Mbps (4.543 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1448
+		Maximum Recv MSS:      1424
+		Total Retransmissions: 669
+		Total Reorderings:     48
+		Average RTT:           23226.5
 	RPM: 91 (P90)
-	RPM: 411 (Single-Sided 5% Trimmed Mean)
+	RPM: 391 (Single-Sided 5% Trimmed Mean)
 ========
-Final RPM: 121 (P90)
-Final RPM: 636 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     3% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    12% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment VDSL 100 40 5 5
-05-04-2026 09:51:42 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4249 (P90)
-Unbounded Baseline RPM:  5411 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4242 (P90)
-Baseline RPM:  5428 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 88.993 Mbps (11.124 MBps), using 12 parallel connections.
-	RPM: 397 (P90)
-	RPM: 784 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 35.357 Mbps (4.420 MBps), using 16 parallel connections.
-	RPM: 71 (P90)
-	RPM: 462 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 71 (P90)
-Final RPM: 705 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     2% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    13% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment VDSL 100 40 5 5
-05-04-2026 09:52:22 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4285 (P90)
-Unbounded Baseline RPM:  5433 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4281 (P90)
-Baseline RPM:  5447 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 89.120 Mbps (11.140 MBps), using 15 parallel connections.
-	RPM: 333 (P90)
-	RPM: 669 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 35.846 Mbps (4.481 MBps), using 16 parallel connections.
-	RPM: 64 (P90)
-	RPM: 401 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 80 (P90)
-Final RPM: 614 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     2% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    11% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment VDSL 100 40 5 5
-05-04-2026 09:53:05 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4253 (P90)
-Unbounded Baseline RPM:  5422 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4261 (P90)
-Baseline RPM:  5454 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 89.247 Mbps (11.156 MBps), using 16 parallel connections.
-	RPM: 301 (P90)
-	RPM: 608 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 34.357 Mbps (4.295 MBps), using 16 parallel connections.
-	RPM: 72 (P90)
-	RPM: 455 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 161 (P90)
-Final RPM: 756 (Single-Sided 5% Trimmed Mean)
+Final RPM: 186 (P90)
+Final RPM: 751 (Single-Sided 5% Trimmed Mean)
 Working-Conditions Effect: Final RPM is     4% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    14% of baseline RPM (Single-Sided 5% Trimmed Mean)
+Working-Conditions Effect: Final RPM is    17% of baseline RPM (Single-Sided 5% Trimmed Mean)
 
-Testing network environment VDSL 100 40 5 5
-05-04-2026 09:53:53 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4247 (P90)
-Unbounded Baseline RPM:  5462 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4254 (P90)
-Baseline RPM:  5478 (Single-Sided 5% Trimmed Mean)
+
+
+Testing network environment Cable 250 50 10 10
+05-06-2026 10:04:46 UTC Go Responsiveness to networkquality.example.com:4043...
+Unbounded Baseline RPM:  2484 (P90)
+Unbounded Baseline RPM:  2587 (Single-Sided 5% Trimmed Mean)
+Baseline RPM:  2486 (P90)
+Baseline RPM:  2588 (Single-Sided 5% Trimmed Mean)
 Results:
 ========
 Download:
 	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 89.121 Mbps (11.140 MBps), using 16 parallel connections.
-	RPM: 304 (P90)
-	RPM: 594 (Single-Sided 5% Trimmed Mean)
+	Throughput: 225.406 Mbps (28.176 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1448
+		Maximum Recv MSS:      1448
+		Total Retransmissions: 0
+		Total Reorderings:     48
+		Average RTT:           24077.125
+	RPM: 305 (P90)
+	RPM: 633 (Single-Sided 5% Trimmed Mean)
 ========
 Upload:
 	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 36.979 Mbps (4.622 MBps), using 16 parallel connections.
+	Throughput: 44.245 Mbps (5.531 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1448
+		Maximum Recv MSS:      1424
+		Total Retransmissions: 0
+		Total Reorderings:     52
+		Average RTT:           31646.5625
 	RPM: 91 (P90)
-	RPM: 394 (Single-Sided 5% Trimmed Mean)
+	RPM: 349 (Single-Sided 5% Trimmed Mean)
 ========
-Final RPM: 112 (P90)
-Final RPM: 730 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     3% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    13% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-
-
-Testing network environment Cable 250 50 10 10
-05-04-2026 09:54:41 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  2529 (P90)
-Unbounded Baseline RPM:  2857 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  2527 (P90)
-Baseline RPM:  2864 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 224.622 Mbps (28.078 MBps), using 16 parallel connections.
-	RPM: 369 (P90)
-	RPM: 678 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 45.483 Mbps (5.685 MBps), using 16 parallel connections.
-	RPM: 91 (P90)
-	RPM: 399 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 89 (P90)
-Final RPM: 613 (Single-Sided 5% Trimmed Mean)
+Final RPM: 109 (P90)
+Final RPM: 703 (Single-Sided 5% Trimmed Mean)
 Working-Conditions Effect: Final RPM is     4% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    21% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Cable 250 50 10 10
-05-04-2026 09:55:27 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  2521 (P90)
-Unbounded Baseline RPM:  2864 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  2525 (P90)
-Baseline RPM:  2867 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 225.242 Mbps (28.155 MBps), using 16 parallel connections.
-	RPM: 376 (P90)
-	RPM: 701 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 44.962 Mbps (5.620 MBps), using 16 parallel connections.
-	RPM: 83 (P90)
-	RPM: 360 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 101 (P90)
-Final RPM: 656 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     4% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    23% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Cable 250 50 10 10
-05-04-2026 09:56:11 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  2498 (P90)
-Unbounded Baseline RPM:  2831 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  2494 (P90)
-Baseline RPM:  2843 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 224.997 Mbps (28.125 MBps), using 16 parallel connections.
-	RPM: 372 (P90)
-	RPM: 660 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 43.873 Mbps (5.484 MBps), using 16 parallel connections.
-	RPM: 99 (P90)
-	RPM: 361 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 156 (P90)
-Final RPM: 886 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     6% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    31% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Cable 250 50 10 10
-05-04-2026 09:56:59 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  2497 (P90)
-Unbounded Baseline RPM:  2852 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  2495 (P90)
-Baseline RPM:  2856 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 225.124 Mbps (28.140 MBps), using 15 parallel connections.
-	RPM: 362 (P90)
-	RPM: 754 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 44.112 Mbps (5.514 MBps), using 16 parallel connections.
-	RPM: 82 (P90)
-	RPM: 374 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 99 (P90)
-Final RPM: 638 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     4% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    22% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Cable 250 50 10 10
-05-04-2026 09:57:43 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  2511 (P90)
-Unbounded Baseline RPM:  2839 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  2504 (P90)
-Baseline RPM:  2846 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 224.741 Mbps (28.093 MBps), using 16 parallel connections.
-	RPM: 373 (P90)
-	RPM: 666 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 44.852 Mbps (5.607 MBps), using 16 parallel connections.
-	RPM: 88 (P90)
-	RPM: 390 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 95 (P90)
-Final RPM: 624 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is     4% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    22% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-
-
-Testing network environment Fiber 600 300 4 4
-05-04-2026 09:58:29 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4745 (P90)
-Unbounded Baseline RPM:  6690 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4758 (P90)
-Baseline RPM:  6769 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 542.560 Mbps (67.820 MBps), using 15 parallel connections.
-	RPM: 1236 (P90)
-	RPM: 2219 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Throughput: 273.056 Mbps (34.132 MBps), using 16 parallel connections.
-	RPM: 458 (P90)
-	RPM: 1703 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 514 (P90)
-Final RPM: 2079 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is    11% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    31% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Fiber 600 300 4 4
-05-04-2026 09:59:10 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4765 (P90)
-Unbounded Baseline RPM:  6716 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4768 (P90)
-Baseline RPM:  6735 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 542.486 Mbps (67.811 MBps), using 16 parallel connections.
-	RPM: 994 (P90)
-	RPM: 2241 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Throughput: 272.400 Mbps (34.050 MBps), using 13 parallel connections.
-	RPM: 500 (P90)
-	RPM: 1763 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 578 (P90)
-Final RPM: 2054 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is    12% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    30% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Fiber 600 300 4 4
-05-04-2026 09:59:48 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4743 (P90)
-Unbounded Baseline RPM:  6619 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4741 (P90)
-Baseline RPM:  6698 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 542.654 Mbps (67.832 MBps), using 16 parallel connections.
-	RPM: 1048 (P90)
-	RPM: 2008 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Throughput: 270.834 Mbps (33.854 MBps), using 16 parallel connections.
-	RPM: 421 (P90)
-	RPM: 1639 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 479 (P90)
-Final RPM: 1872 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is    10% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    28% of baseline RPM (Single-Sided 5% Trimmed Mean)
-
-Testing network environment Fiber 600 300 4 4
-05-04-2026 10:00:30 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4934 (P90)
-Unbounded Baseline RPM:  6714 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4911 (P90)
-Baseline RPM:  6752 (Single-Sided 5% Trimmed Mean)
-Results:
-========
-Download:
-	Throughput: 542.618 Mbps (67.827 MBps), using 16 parallel connections.
-	RPM: 928 (P90)
-	RPM: 1943 (Single-Sided 5% Trimmed Mean)
-========
-Upload:
-	Throughput: 270.999 Mbps (33.875 MBps), using 16 parallel connections.
-	RPM: 478 (P90)
-	RPM: 1606 (Single-Sided 5% Trimmed Mean)
-========
-Final RPM: 537 (P90)
-Final RPM: 1806 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is    11% of baseline RPM (P90)
 Working-Conditions Effect: Final RPM is    27% of baseline RPM (Single-Sided 5% Trimmed Mean)
 
+
+
 Testing network environment Fiber 600 300 4 4
-05-04-2026 10:01:14 UTC Go Responsiveness to networkquality.example.com:4043...
-Unbounded Baseline RPM:  4747 (P90)
-Unbounded Baseline RPM:  6616 (Single-Sided 5% Trimmed Mean)
-Baseline RPM:  4744 (P90)
-Baseline RPM:  6672 (Single-Sided 5% Trimmed Mean)
+05-06-2026 10:05:35 UTC Go Responsiveness to networkquality.example.com:4043...
+Unbounded Baseline RPM:  4694 (P90)
+Unbounded Baseline RPM:  5050 (Single-Sided 5% Trimmed Mean)
+Baseline RPM:  4696 (P90)
+Baseline RPM:  5056 (Single-Sided 5% Trimmed Mean)
 Results:
 ========
 Download:
-	Note: Test did not run to stability (responsiveness), these results are estimates.
-	Throughput: 542.343 Mbps (67.793 MBps), using 16 parallel connections.
-	RPM: 967 (P90)
-	RPM: 1894 (Single-Sided 5% Trimmed Mean)
+	Throughput: 542.758 Mbps (67.845 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1448
+		Maximum Recv MSS:      1448
+		Total Retransmissions: 6
+		Total Reorderings:     51
+		Average RTT:           11791.3125
+	RPM: 531 (P90)
+	RPM: 1349 (Single-Sided 5% Trimmed Mean)
 ========
 Upload:
-	Throughput: 271.464 Mbps (33.933 MBps), using 16 parallel connections.
-	RPM: 432 (P90)
-	RPM: 1704 (Single-Sided 5% Trimmed Mean)
+	Throughput: 271.592 Mbps (33.949 MBps), using 13 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1448
+		Maximum Recv MSS:      1425
+		Total Retransmissions: 0
+		Total Reorderings:     85
+		Average RTT:           12279.076923076924
+	RPM: 469 (P90)
+	RPM: 1751 (Single-Sided 5% Trimmed Mean)
 ========
-Final RPM: 572 (P90)
-Final RPM: 2197 (Single-Sided 5% Trimmed Mean)
-Working-Conditions Effect: Final RPM is    12% of baseline RPM (P90)
-Working-Conditions Effect: Final RPM is    33% of baseline RPM (Single-Sided 5% Trimmed Mean)
+Final RPM: 506 (P90)
+Final RPM: 1714 (Single-Sided 5% Trimmed Mean)
+Working-Conditions Effect: Final RPM is    11% of baseline RPM (P90)
+Working-Conditions Effect: Final RPM is    34% of baseline RPM (Single-Sided 5% Trimmed Mean)
 
 
 

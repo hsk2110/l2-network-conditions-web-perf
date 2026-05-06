@@ -7,6 +7,7 @@ fi
 
 # single dimensional iteration over pre-defined network environemnts
 # the definitions are in environemnts.txt and will be iterated through accordingly
+: '
 iterEnvironments () {
   while IFS= read -r line || [ -n "${line}" ]; do    
     read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}"
@@ -66,6 +67,7 @@ iterTestParameters () {
     sleep 1
   done < rpmparameters/testparameters.txt
 }
+'
 
 iterParameters () {
   # loop over the environments (environment-name, capacities and delay in both directions)
@@ -107,7 +109,7 @@ iterParameters () {
 
             ip netns exec client-net ./networkQuality \
               --url https://networkquality.example.com:4043/.well-known/nq \
-              --insecure-skip-verify -relative-rpm --"rpm.${test_parameter}" ${i} >> output.txt
+              --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> output.txt
             printf "\n" >> output.txt
             kill "$server_pid" 2>/dev/null || true
             ./setup-shaping.sh DELETE         
@@ -144,7 +146,7 @@ iterParameters () {
 
           ip netns exec client-net ./networkQuality \
             --url https://networkquality.example.com:4043/.well-known/nq \
-            --insecure-skip-verify -relative-rpm  >> output.txt
+            --insecure-skip-verify -extended-stats -relative-rpm  >> output.txt
           printf "\n" >> output.txt
           kill "$server_pid" 2>/dev/null || true
           ./setup-shaping.sh DELETE
@@ -177,10 +179,9 @@ iterParameters () {
             echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
             echo "Testing test parameter ${test_parameter} ${i}"
             echo "Testing test parameter ${test_parameter} ${i}" >> output.txt
-
             ip netns exec client-net ./networkQuality \
               --url https://networkquality.example.com:4043/.well-known/nq \
-              --insecure-skip-verify -relative-rpm --"rpm.${test_parameter}" ${i} >> output.txt
+              --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> output.txt
             printf "\n" >> output.txt
             kill "$server_pid" 2>/dev/null || true
             ./setup-shaping.sh DELETE

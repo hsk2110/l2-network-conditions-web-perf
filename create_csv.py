@@ -9,13 +9,13 @@ environment_parameters = ['dl_capacity', 'ul_capacity', 'dl_delay', 'ul_delay']
 # index            5     6      7      8      9    10     11     12         13
 rpm_parameters = ['id', 'mad', 'mnp', 'mps', 'p', 'ptc', 'sdt', 'timeout', 'tmp']
 
-# index            14                       15                          16               17                18           19
-dl_test_output = ['dl_stable_throughput',  'dl_stable_responsiveness', 'dl_throughput', 'dl_connections', 'dl_rpm_p', 'dl_rpm_trimmed']
-# index            20                       21                          22               23                24          25
-ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throughput', 'ul_connections', 'ul_rpm_p', 'ul_rpm_trimmed']
-# index               26              27
+# index            14                       15                          16               17                18                 19                 20                  21                    22            23            24          25
+dl_test_output = ['dl_stable_throughput',  'dl_stable_responsiveness', 'dl_throughput', 'dl_connections', 'dl_max_path_mtu', 'dl_max_send_mss', 'dl_ max_recv_mss', 'dl_retransmissions', 'dl_reorder', 'dl_avg_rtt', 'dl_rpm_p', 'dl_rpm_trimmed']
+# index            26                       27                          28               29                30                 31                 32                  33                    34            35            36          37
+ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throughput', 'ul_connections', 'ul_max_path_mtu', 'ul_max_send_mss', 'ul_ max_recv_mss', 'ul_retransmissions', 'ul_reorder', 'ul_avg_rtt', 'ul_rpm_p', 'ul_rpm_trimmed']
+# index               38              39
 final_test_output = ['final_rpm_p', 'final_rpm_trimmed']
-# index                  28               29                     30            31                  32             33
+# index                  40               41                     42            43                  44             45
 relative_test_output = ['ub_base_rpm_p', 'ub_base_rpm_trimmed', 'base_rpm_p', 'base_rpm_trimmed', 'wc_effect_p', 'wc_effect_trimmed']
 
 fieldnames = fieldnames + environment_parameters + rpm_parameters + dl_test_output + ul_test_output + final_test_output + relative_test_output
@@ -40,8 +40,8 @@ def initData(data):
     data[fieldnames[13]] = '5'
     data[fieldnames[14]] = 'True'
     data[fieldnames[15]] = 'True'
-    data[fieldnames[20]] = 'True'
-    data[fieldnames[21]] = 'True'
+    data[fieldnames[26]] = 'True'
+    data[fieldnames[27]] = 'True'
 
 
 def parseFile (filename):
@@ -62,14 +62,14 @@ def parseFile (filename):
                     data[split_line[3]] = split_line[4]
             elif line.startswith("Unbounded"):
                 if op.contains(line, "Trimmed"):
-                    data[fieldnames[29]] = split_line[3]
+                    data[fieldnames[41]] = split_line[3]
                 else:
-                    data[fieldnames[28]] = split_line[3]
+                    data[fieldnames[40]] = split_line[3]
             elif line.startswith("Baseline"):
                 if op.contains(line, "Trimmed"):
-                    data[fieldnames[31]] = split_line[2]
+                    data[fieldnames[43]] = split_line[2]
                 else:
-                    data[fieldnames[30]] = split_line[2]
+                    data[fieldnames[42]] = split_line[2]
             elif line.startswith("Download"):
                 download = True
             elif line.startswith("Upload"):
@@ -79,60 +79,91 @@ def parseFile (filename):
                     if download:
                         data[fieldnames[15]] = 'False'
                     else:
-                        data[fieldnames[21]] = 'False'
+                        data[fieldnames[27]] = 'False'
                 if op.contains(line, "throughput"):
                     if download:
                         data[fieldnames[14]] = 'False'
                     else:
-                        data[fieldnames[20]] = 'False'
+                        data[fieldnames[26]] = 'False'
             elif line.startswith("Throughput"):
                 if download:
                     data[fieldnames[16]] = split_line[1]
                     data[fieldnames[17]] = split_line[6]
                 else:
-                    data[fieldnames[22]] = split_line[1]
-                    data[fieldnames[23]] = split_line[6]
-            elif line.startswith("RPM"):
-                if not op.contains(line, "Trimmed"):
-                    if download:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[18]] = '0'
-                        else:
-                            data[fieldnames[18]] = split_line[1]
-                    else:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[24]] = '0'
-                        else:
-                            data[fieldnames[24]] = split_line[1]
+                    data[fieldnames[28]] = split_line[1]
+                    data[fieldnames[29]] = split_line[6]
+            elif op.contains(line, "MTU"):
+                if download:
+                    data[fieldnames[18]] = split_line[3]
                 else:
+                    data[fieldnames[30]] = split_line[3]
+            elif op.contains(line, "Send"):
+                if download:
+                    data[fieldnames[19]] = split_line[3]
+                else:
+                    data[fieldnames[31]] = split_line[3]
+            elif op.contains(line, "Recv"):
+                if download:
+                    data[fieldnames[20]] = split_line[3]
+                else:
+                    data[fieldnames[32]] = split_line[3]
+            elif op.contains(line, "Retransmissions"):
+                if download:
+                    data[fieldnames[21]] = split_line[2]
+                else:
+                    data[fieldnames[33]] = split_line[2]
+            elif op.contains(line, "Reorderings"):
+                if download:
+                    data[fieldnames[22]] = split_line[2]
+                else:
+                    data[fieldnames[34]] = split_line[2]
+            elif op.contains(line, "RTT"):
+                if download:
+                    data[fieldnames[23]] = split_line[2]
+                else:
+                    data[fieldnames[35]] = split_line[2]
+            elif line.startswith("RPM"):
+                if op.contains(line, "Trimmed"):
                     if download:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[19]] = '0'
-                        else:
-                            data[fieldnames[19]] = split_line[1]
-                    else:
                         if op.contains(line, "Inf") or op.contains(line, "NaN"):
                             data[fieldnames[25]] = '0'
                         else:
                             data[fieldnames[25]] = split_line[1]
-            elif line.startswith("Final") and not op.contains(line, "Trimmed"):
-                if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                    data[fieldnames[26]] = '0'
+                    else:
+                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
+                            data[fieldnames[37]] = '0'
+                        else:
+                            data[fieldnames[37]] = split_line[1]
                 else:
-                    data[fieldnames[26]] = split_line[2]
-            elif line.startswith("Final") and op.contains(line, "Trimmed"):
-                if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                    data[fieldnames[27]] = '0'
+                    if download:
+                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
+                            data[fieldnames[24]] = '0'
+                        else:
+                            data[fieldnames[24]] = split_line[1]
+                    else:
+                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
+                            data[fieldnames[36]] = '0'
+                        else:
+                            data[fieldnames[36]] = split_line[1]
+            elif line.startswith("Final"):
+                if op.contains(line, "Trimmed"):
+                    if op.contains(line, "Inf") or op.contains(line, "NaN"):
+                        data[fieldnames[39]] = '0'
+                    else:
+                        data[fieldnames[39]] = split_line[2]
                 else:
-                    data[fieldnames[27]] = split_line[2]
+                    if op.contains(line, "Inf") or op.contains(line, "NaN"):
+                        data[fieldnames[38]] = '0'
+                    else:
+                        data[fieldnames[38]] = split_line[2]
             elif line.startswith("Working"):
                 if op.contains(line, "Trimmed"):
-                    data[fieldnames[33]] = split_line[5][:-1]
+                    data[fieldnames[45]] = split_line[5][:-1]
                     datalist.append(data)
                     data = {}
                     initData(data)
                 else:
-                    data[fieldnames[32]] = split_line[5][:-1]
+                    data[fieldnames[44]] = split_line[5][:-1]
             
 
 
