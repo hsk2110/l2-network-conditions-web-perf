@@ -106,6 +106,8 @@ iterParameters () {
             echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
             echo "Testing test parameter ${test_parameter} ${i}"
             echo "Testing test parameter ${test_parameter} ${i}" >> output.txt
+			echo "iteration ${j}"
+			echo "iteration ${j}" >> output.txt
 
             ip netns exec client-net ./networkQuality \
               --url https://networkquality.example.com:4043/.well-known/nq \
@@ -143,6 +145,7 @@ iterParameters () {
           echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
           echo "Testing default"
           echo "iteration ${j}"
+		  echo "iteration ${j}" >> output.txt
 
           ip netns exec client-net ./networkQuality \
             --url https://networkquality.example.com:4043/.well-known/nq \
@@ -179,6 +182,9 @@ iterParameters () {
             echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
             echo "Testing test parameter ${test_parameter} ${i}"
             echo "Testing test parameter ${test_parameter} ${i}" >> output.txt
+			echo "iteration ${j}"
+			echo "iteration ${j}" >> output.txt
+			
             ip netns exec client-net ./networkQuality \
               --url https://networkquality.example.com:4043/.well-known/nq \
               --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> output.txt
