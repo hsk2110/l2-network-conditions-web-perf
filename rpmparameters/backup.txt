@@ -4,7 +4,6 @@ mad 2 6 1
 mnp 8 24 4
 mps 50 150 10
 p 80 95 1
-parallel
 ptc 0.05 0.15 0.01
 sdt 5 15 1
 timeout 15 25 1
