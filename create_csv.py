@@ -10,9 +10,9 @@ environment_parameters = ['dl_capacity', 'ul_capacity', 'dl_delay', 'ul_delay']
 rpm_parameters = ['id', 'mad', 'mnp', 'mps', 'p', 'ptc', 'sdt', 'timeout', 'tmp']
 
 # index            14                       15                          16               17                18                 19                 20                  21                    22            23            24          25
-dl_test_output = ['dl_stable_throughput',  'dl_stable_responsiveness', 'dl_throughput', 'dl_connections', 'dl_max_path_mtu', 'dl_max_send_mss', 'dl_ max_recv_mss', 'dl_retransmissions', 'dl_reorder', 'dl_avg_rtt', 'dl_rpm_p', 'dl_rpm_trimmed']
+dl_test_output = ['dl_stable_throughput',  'dl_stable_responsiveness', 'dl_throughput', 'dl_connections', 'dl_max_path_mtu', 'dl_max_send_mss', 'dl_max_recv_mss', 'dl_retransmissions', 'dl_reorder', 'dl_avg_rtt', 'dl_rpm_p', 'dl_rpm_trimmed']
 # index            26                       27                          28               29                30                 31                 32                  33                    34            35            36          37
-ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throughput', 'ul_connections', 'ul_max_path_mtu', 'ul_max_send_mss', 'ul_ max_recv_mss', 'ul_retransmissions', 'ul_reorder', 'ul_avg_rtt', 'ul_rpm_p', 'ul_rpm_trimmed']
+ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throughput', 'ul_connections', 'ul_max_path_mtu', 'ul_max_send_mss', 'ul_max_recv_mss', 'ul_retransmissions', 'ul_reorder', 'ul_avg_rtt', 'ul_rpm_p', 'ul_rpm_trimmed']
 # index               38              39
 final_test_output = ['final_rpm_p', 'final_rpm_trimmed']
 # index                  40               41                     42            43                  44             45
