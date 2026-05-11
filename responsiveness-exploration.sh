@@ -113,8 +113,8 @@ iterParameters () {
             printf "\n" >> output.txt
             kill "$server_pid" 2>/dev/null || true
             ./setup-shaping.sh DELETE         
-          i=$(echo "$i + $steps" | bc -l)
           done
+          i=$(echo "$i + $steps" | bc -l)
         done
       elif [[ "${test_parameter}" = "default" ]]; then
       # if we do a default iteration
