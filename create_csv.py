@@ -17,8 +17,10 @@ ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throu
 final_test_output = ['final_rpm_p', 'final_rpm_trimmed']
 # index                  40               41                     42            43                  44             45
 relative_test_output = ['ub_base_rpm_p', 'ub_base_rpm_trimmed', 'base_rpm_p', 'base_rpm_trimmed', 'wc_effect_p', 'wc_effect_trimmed']
+# index  46
+misc = ['iteration']
 
-fieldnames = fieldnames + environment_parameters + rpm_parameters + dl_test_output + ul_test_output + final_test_output + relative_test_output
+fieldnames = fieldnames + environment_parameters + rpm_parameters + dl_test_output + ul_test_output + final_test_output + relative_test_output + misc
 
 datalist = []
 
@@ -125,37 +127,19 @@ def parseFile (filename):
             elif line.startswith("RPM"):
                 if op.contains(line, "Trimmed"):
                     if download:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[25]] = '0'
-                        else:
-                            data[fieldnames[25]] = split_line[1]
+                        data[fieldnames[25]] = split_line[1]
                     else:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[37]] = '0'
-                        else:
-                            data[fieldnames[37]] = split_line[1]
+                        data[fieldnames[37]] = split_line[1]
                 else:
                     if download:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[24]] = '0'
-                        else:
-                            data[fieldnames[24]] = split_line[1]
+                        data[fieldnames[24]] = split_line[1]
                     else:
-                        if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                            data[fieldnames[36]] = '0'
-                        else:
-                            data[fieldnames[36]] = split_line[1]
+                        data[fieldnames[36]] = split_line[1]
             elif line.startswith("Final"):
                 if op.contains(line, "Trimmed"):
-                    if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                        data[fieldnames[39]] = '0'
-                    else:
-                        data[fieldnames[39]] = split_line[2]
+                    data[fieldnames[39]] = split_line[2]
                 else:
-                    if op.contains(line, "Inf") or op.contains(line, "NaN"):
-                        data[fieldnames[38]] = '0'
-                    else:
-                        data[fieldnames[38]] = split_line[2]
+                    data[fieldnames[38]] = split_line[2]
             elif line.startswith("Working"):
                 if op.contains(line, "Trimmed"):
                     data[fieldnames[45]] = split_line[5][:-1]
@@ -164,6 +148,8 @@ def parseFile (filename):
                     initData(data)
                 else:
                     data[fieldnames[44]] = split_line[5][:-1]
+            elif line.startswith("iteration"):
+                data[fieldnames[46]] = split_line[1]
             
 
 

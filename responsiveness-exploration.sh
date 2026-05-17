@@ -5,80 +5,37 @@ if [[ ${EUID} -ne 0 ]]; then
 	exit 2
 fi
 
-# single dimensional iteration over pre-defined network environemnts
-# the definitions are in environemnts.txt and will be iterated through accordingly
-: '
-iterEnvironments () {
-  while IFS= read -r line || [ -n "${line}" ]; do    
-    read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}"
-    echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> output.txt
-    echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
-    ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
-    ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 &
-    sleep 1
-    ip netns exec client-net ./networkQuality --url https://networkquality.example.com:4043/.well-known/nq --insecure-skip-verify >> output.txt
-    ./setup-shaping.sh DELETE
-    printf "\n" >> output.txt
-    sleep 1
-  done < rpmparameters/environments.txt
-  printf "finished with the environments\n\n" >> output.txt
+iperfReference () {
+  # iperf (UDP mode; 1Gbit; ul/dl separat messen) test der als referenz dient
+  # muss 1x pro environment laufen
+  touch debugging.txt
+  # for singled out testing:
+  # ./setup-shaping.sh CREATE 100Mbit 40Mbit 5ms 5ms  
+  
+  ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
+  
+  echo "server netcat" >> debugging.txt 2>&1
+  ip netns exec server-net nc -lv 5001 >> debugging.txt
+  echo "client netcat" >> debugging.txt
+  echo "client netcat"
+  ip netns exec client-net nc 10.237.0.3 5001 >> debugging.txt
+  
+  ./setup-shaping.sh DELETE
 }
 
-# single dimensional iteration over responsiveness test parameters
-# the definitions are in testparameters.txt and will be iterated through accordingly
-iterTestParameters () {
-  while IFS= read -r line || [ -n "$line" ]; do
-    read -r test_parameter p_min p_max steps <<< "$line"    
-    ./setup-shaping.sh CREATE 1000Mbit 1000Mbit 10ms 10ms
-    sleep 1
-    ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 &
-    sleep 1
-    i=$p_min
-    # if parameter is a float
-    if [[ "${test_parameter}" = "ptc" ]]; then
-      while [ "$(bc <<< "$i <= $p_max")" == "1"  ]; do
-        echo "Testing network environment FiberGlas 1000 1000 10 10" >> output.txt
-        echo "Testing test parameter ${test_parameter} ${i}"
-        echo "Testing test parameter ${test_parameter} ${i}" >> output.txt
-        ip netns exec client-net ./networkQuality --url https://networkquality.example.com:4043/.well-known/nq --insecure-skip-verify  --"rpm.${test_parameter}" ${i} >> output.txt
-        printf "\n" >> output.txt
-        i=$(echo "$i + $steps" | bc -l)
-      done
-    # if parameter is a bool
-    elif [[ "$test_parameter" = "parallel" ]]; then
-      echo "Testing network environment FiberGlas 1000 1000 10 10" >> output.txt
-      echo "Testing test parameter $test_parameter True"
-      echo "Testing test parameter $test_parameter True" >> output.txt
-      ip netns exec client-net ./networkQuality --url https://networkquality.example.com:4043/.well-known/nq --insecure-skip-verify  --"rpm.$test_parameter" >> output.txt
-      printf "\n" >> output.txt 
-    else
-      while (( i <= p_max )); do
-        echo "Testing network environment FiberGlas 1000 1000 10 10" >> output.txt
-        echo "Testing test parameter $test_parameter $i"
-        echo "Testing test parameter $test_parameter $i" >> output.txt
-        ip netns exec client-net ./networkQuality --url https://networkquality.example.com:4043/.well-known/nq --insecure-skip-verify  --"rpm.$test_parameter" $i >> output.txt
-        printf "\n" >> output.txt      
-        ((i+=steps))
-      done 
-    fi
-    
-    ./setup-shaping.sh DELETE
-    printf "\n" >> output.txt
-    sleep 1
-  done < rpmparameters/testparameters.txt
-}
-'
+
 # single dimensional iteration through test parameters
 iterParameters () {
   # loop over the environments (environment-name, capacities and delay in both directions)
   while IFS= read -r line || [ -n "${line}" ]; do    
-    read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}" # read the environment parameters 
+    read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}" # read the environment parameters
+    mkdir outputfiles/${envname}
 
     # loop over the test-parameters (parameter-name, minimum and maximum value and iteration steps)  
     while IFS= read -r line || [ -n "$line" ]; do
       read -r test_parameter p_min p_max steps <<< "$line" # read the test parameter values, min, max and steps
       i=$p_min
-
+      mkdir outputfiles/${envname}/${test_parameter}
       # if parameter is a float
       if [[ "${test_parameter}" = "ptc" ]]; then
       # loop over the currently tested parameter
@@ -90,7 +47,8 @@ iterParameters () {
       # 5. server and emulation shutdown
         while [ "$(bc <<< "$i <= $p_max")" == "1"  ]; do
           # we do 100 iterations
-          for j in {1..100}; do            
+          for j in {1..100}; do
+            mkdir outputfiles/${envname}/${test_parameter}/${j}           
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
             # start server and get pid for killing later
             ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 \
@@ -123,7 +81,7 @@ iterParameters () {
             kill "$server_pid" 2>/dev/null || true
             ./setup-shaping.sh DELETE         
           done
-          i=$(echo "$i + $steps" | bc -l)
+          i=$(echo "$i + $steps" | bc -l)    
         done
       elif [[ "${test_parameter}" = "default" ]]; then # default means we use default parameter values
       # if we do a default iteration
@@ -133,11 +91,13 @@ iterParameters () {
       # 4. client start
       # (4. Client's output gets logged)
       # 5. server and emulation shutdown
+        iperfReference
         #  we do 100 iterations
-        for j in {1..100}; do            
+        for j in {1..1}; do
+          mkdir outputfiles/${envname}/${test_parameter}/${j}             
           ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
           # start server and get pid for killing later
-          ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 \
+          ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
             >server.log 2>&1 &
           server_pid=$!
           # Wait until the server port is reachable
@@ -159,7 +119,7 @@ iterParameters () {
 
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
-            --url https://networkquality.example.com:4043/.well-known/nq \
+            --connect-to 10.237.0.3 \
             --insecure-skip-verify -extended-stats -relative-rpm  >> output.txt
           printf "\n" >> output.txt
           # kill server and delete network
@@ -177,6 +137,7 @@ iterParameters () {
         while (( i <= p_max )); do
           #  we do 100 iterations
           for j in {1..100}; do
+            mkdir outputfiles/${envname}/${test_parameter}/${j} 
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
             # start server and get pid for killing later
             ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 \
@@ -291,7 +252,7 @@ iterParametersTwoDims () {
 }
 
 if [ ! -f "output.txt" ]; then
-    touch output.txt
+  touch output.txt
 fi
 cat /dev/null > output.txt
 iterParameters
