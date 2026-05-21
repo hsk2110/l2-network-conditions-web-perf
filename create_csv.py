@@ -1,6 +1,8 @@
 import csv
 import operator as op
 import os
+import sys
+from pathlib import Path
 
 # index        0
 fieldnames = ['exp_parameters']
@@ -23,10 +25,6 @@ misc = ['iteration']
 fieldnames = fieldnames + environment_parameters + rpm_parameters + dl_test_output + ul_test_output + final_test_output + relative_test_output + misc
 
 datalist = []
-
-
-outputfile = os.path.join(os.getcwd(), "outputfiles/output.txt")
-csvfile = os.path.join(os.getcwd(), "outputfiles/output.csv")
 
 def initData(data):
     for i in range(0, 5):
@@ -152,9 +150,12 @@ def parseFile (filename):
                 data[fieldnames[46]] = split_line[1]
             
 
+measurement_folder = Path(f"outputfiles/{sys.argv[1]}")
+csvfile = os.path.join(os.getcwd(), f"outputfiles/{sys.argv[1]}/output.csv")
 
-parseFile(outputfile)
-
+for file_path in measurement_folder.rglob("test_output.log"):
+    if file_path.is_file():
+        parseFile(file_path)
 
 # write the datalist into the csv file
 with open(csvfile, 'w') as csvfile:

@@ -8,52 +8,80 @@ fi
 iperfReference () {
   # iperf (UDP mode; 1Gbit; ul/dl separat messen) test der als referenz dient
   # muss 1x pro environment laufen
-  touch debugging.txt
+  touch "${TEST_DIR}/iperf_server.log"
+  touch "${TEST_DIR}/iperf_client.log"
   # for singled out testing:
-  # ./setup-shaping.sh CREATE 100Mbit 40Mbit 5ms 5ms  
+  ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms  
   
-  ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
+  echo "server iperf3"
+  ip netns exec server-net iperf3 -s -B 10.237.0.3 > "${TEST_DIR}/iperf_server.log" 2>&1 &
+  SERVER_PID=$!
+
+  sleep 1
+
+  echo "client iperf3"
+  echo "client iperf3" >> "${TEST_DIR}/iperf_client.log"
+  ip netns exec client-net iperf3 -c 10.237.0.3 -t 15 -u -b 1G >> "${TEST_DIR}/iperf_client.log" 2>&1
+  echo "client iperf3 done"
+  echo "client iperf3 reverse"
+  echo "client iperf3 reverse" >> "${TEST_DIR}/iperf_client.log"
+  ip netns exec client-net iperf3 -c 10.237.0.3 -R -t 15 -u -b 1G >> "${TEST_DIR}/iperf_client.log" 2>&1
+  echo "client iperf3 reverse done" 
+
   
-  echo "server netcat" >> debugging.txt 2>&1
-  ip netns exec server-net nc -lv 5001 >> debugging.txt
-  echo "client netcat" >> debugging.txt
-  echo "client netcat"
-  ip netns exec client-net nc 10.237.0.3 5001 >> debugging.txt
+  kill "$SERVER_PID" 2>/dev/null || true
+  wait "$SERVER_PID" 2>/dev/null || true
+  echo "iperf3 killed."
   
   ./setup-shaping.sh DELETE
 }
 
 
+# TODO: run "openssl req -x509 -newkey rsa:2048 -keyout privkey.pem -out fullchain.pem -days 365 -nodes -subj "/CN=networkquality.example.com""
+# and use these cert and key for the server
 # single dimensional iteration through test parameters
 iterParameters () {
+  # first we make a directory for the whole measurement:
+  MEASUREMENT_DIR="outputfiles/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
+  mkdir "${MEASUREMENT_DIR}"
+  touch "${MEASUREMENT_DIR}/progress.log"
   # loop over the environments (environment-name, capacities and delay in both directions)
   while IFS= read -r line || [ -n "${line}" ]; do    
     read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}" # read the environment parameters
-    mkdir outputfiles/${envname}
+    mkdir "${MEASUREMENT_DIR}/${envname}"
 
     # loop over the test-parameters (parameter-name, minimum and maximum value and iteration steps)  
     while IFS= read -r line || [ -n "$line" ]; do
       read -r test_parameter p_min p_max steps <<< "$line" # read the test parameter values, min, max and steps
       i=$p_min
-      mkdir outputfiles/${envname}/${test_parameter}
+      TEST_DIR="${MEASUREMENT_DIR}/${envname}/${test_parameter}"
+      mkdir "${TEST_DIR}"      
       # if parameter is a float
-      if [[ "${test_parameter}" = "ptc" ]]; then
-      # loop over the currently tested parameter
-      # 1. emulation start
-      # 2. server start
-      # 3. wait until server reachable
-      # 4. client start
-      # (4. Client's output gets logged)
-      # 5. server and emulation shutdown
+      if [[ "${test_parameter}" = "ptc" ]]; then        
+        # loop over the currently tested parameter
+        # 1. emulation start
+        # 2. server start
+        # 3. wait until server reachable
+        # 4. client start
+        # (4. Client's output gets logged)
+        # 5. server and emulation shutdown
         while [ "$(bc <<< "$i <= $p_max")" == "1"  ]; do
+          mkdir "${TEST_DIR}/At${i}"                    
           # we do 100 iterations
-          for j in {1..100}; do
-            mkdir outputfiles/${envname}/${test_parameter}/${j}           
+          for j in {1..2}; do
+            echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" >> "${MEASUREMENT_DIR}/progress.log"
+            mkdir "${TEST_DIR}/At${i}/${j}"
+            TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
+            PCAP_FILE="${TEST_DIR}/At${i}/${j}/traffic.pcap"
+            KEYS_FILE="${TEST_DIR}/At${i}/${j}/test_keys.keys"
+            touch ${TEST_FILE}
+            cat /dev/null > ${TEST_FILE}          
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
             # start server and get pid for killing later
-            ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 \
-              >server.log 2>&1 &
+            ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
+              >/tmp/server.log 2>&1 &
             server_pid=$!
+            
             # Wait until the server port is reachable
             ip netns exec client-net bash -c '
               for i in {1..300}; do
@@ -65,41 +93,54 @@ iterParameters () {
             ' || { kill "$server_pid" 2>/dev/null || true; ./setup-shaping.sh DELETE; exit 1; }
             
             # log the set test parameters into output
-            echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> output.txt
+            echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> ${TEST_FILE}
             echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
             echo "Testing test parameter ${test_parameter} ${i}"
-            echo "Testing test parameter ${test_parameter} ${i}" >> output.txt
+            echo "Testing test parameter ${test_parameter} ${i}" >> ${TEST_FILE}
             echo "iteration ${j}"
-            echo "iteration ${j}" >> output.txt
+            echo "iteration ${j}" >> ${TEST_FILE}
+
+            # start capturing packets
+            ip netns exec bottleneck-net timeout 180s tcpdump -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+
+            echo "test will start..."
 
             # start client and log it into output
             ip netns exec client-net ./networkQuality \
-              --url https://networkquality.example.com:4043/.well-known/nq \
-              --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> output.txt
-            printf "\n" >> output.txt
+              --connect-to 10.237.0.3 \
+              --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
             # kill server and delete network
-            kill "$server_pid" 2>/dev/null || true
-            ./setup-shaping.sh DELETE         
-          done
+            ip netns exec server-net pkill -TERM -f '\./networkqualityd' || true
+            echo "server killed"
+            ./setup-shaping.sh DELETE
+            done
           i=$(echo "$i + $steps" | bc -l)    
         done
       elif [[ "${test_parameter}" = "default" ]]; then # default means we use default parameter values
-      # if we do a default iteration
-      # 1. emulation start
-      # 2. server start
-      # 3. wait until server reachable
-      # 4. client start
-      # (4. Client's output gets logged)
-      # 5. server and emulation shutdown
+        # if we do a default iteration
+        # 1. emulation start
+        # 2. server start
+        # 3. wait until server reachable
+        # 4. client start
+        # (4. Client's output gets logged)
+        # 5. server and emulation shutdown
         iperfReference
         #  we do 100 iterations
         for j in {1..1}; do
-          mkdir outputfiles/${envname}/${test_parameter}/${j}             
+          echo "currently: ${envname}_${test_parameter}_iteration${j}" >> "${MEASUREMENT_DIR}/progress.log" 
+          mkdir "${TEST_DIR}/${j}"
+          TEST_FILE="${TEST_DIR}/${j}/test_output.log"
+          PCAP_FILE="${TEST_DIR}/${j}/traffic.pcap"
+          KEYS_FILE="${TEST_DIR}/${j}/keys.log"
+          touch ${TEST_FILE}
+          cat /dev/null > ${TEST_FILE}              
           ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
           # start server and get pid for killing later
           ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
-            >server.log 2>&1 &
+            >/tmp/server.log 2>&1 &
           server_pid=$!
+
+          echo "server online"
           # Wait until the server port is reachable
           ip netns exec client-net bash -c '
             for i in {1..300}; do
@@ -111,37 +152,56 @@ iterParameters () {
           ' || { kill "$server_pid" 2>/dev/null || true; ./setup-shaping.sh DELETE; exit 1; }
 
           # log the set test parameters into output
-          echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> output.txt
+          echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> ${TEST_FILE}
           echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
           echo "Testing default"
           echo "iteration ${j}"
-		      echo "iteration ${j}" >> output.txt
+		      echo "iteration ${j}" >> ${TEST_FILE}
+
+          # start capturing packets
+          ip netns exec bottleneck-net timeout 180s tcpdump -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+
+          echo "test will start..."
+
 
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            --insecure-skip-verify -extended-stats -relative-rpm  >> output.txt
-          printf "\n" >> output.txt
+            -extended-stats -relative-rpm >> ${TEST_FILE}
+          echo "test done."
+
+          # for some reason i cant kill tcpdump; says i dont have permission
+          # kill -SIGINT $tcpdumpPID
+	        # wait $tcpdumpPID
+
           # kill server and delete network
-          kill "$server_pid" 2>/dev/null || true
+          ip netns exec server-net pkill -TERM -f '\./networkqualityd' || true
+          echo "server killed"
           ./setup-shaping.sh DELETE
         done
       else
-      # for integers
-      # 1. emulation start
-      # 2. server start
-      # 3. wait until server reachable
-      # 4. client start
-      # (4. Client's output gets logged)
-      # 5. server and emulation shutdown
+        # for integers
+        # 1. emulation start
+        # 2. server start
+        # 3. wait until server reachable
+        # 4. client start
+        # (4. Client's output gets logged)
+        # 5. server and emulation shutdown
         while (( i <= p_max )); do
+          mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..100}; do
-            mkdir outputfiles/${envname}/${test_parameter}/${j} 
+          for j in {1..1}; do
+            echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" >> "${MEASUREMENT_DIR}/progress.log" 
+            mkdir "${TEST_DIR}/At${i}/${j}"
+            TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
+            PCAP_FILE="${TEST_DIR}/At${i}/${j}/traffic.pcap"
+            KEYS_FILE="${TEST_DIR}/At${i}/${j}/test_keys.keys"
+            touch ${TEST_FILE}
+            cat /dev/null > ${TEST_FILE}
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
             # start server and get pid for killing later
-            ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 \
-              >server.log 2>&1 &
+            ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
+              >/tmp/server.log 2>&1 &
             server_pid=$!
             # Wait until the server port is reachable
             ip netns exec client-net bash -c '
@@ -154,29 +214,33 @@ iterParameters () {
             ' || { kill "$server_pid" 2>/dev/null || true; ./setup-shaping.sh DELETE; exit 1; }
 
             # log the set test parameters into output
-            echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> output.txt
+            echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> ${TEST_FILE}
             echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
             echo "Testing test parameter ${test_parameter} ${i}"
-            echo "Testing test parameter ${test_parameter} ${i}" >> output.txt
+            echo "Testing test parameter ${test_parameter} ${i}" >> ${TEST_FILE}
             echo "iteration ${j}"
-            echo "iteration ${j}" >> output.txt
-			      
+            echo "iteration ${j}" >> ${TEST_FILE}
+
+            # start capturing packets
+            ip netns exec bottleneck-net timeout 180s tcpdump -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+            
+            echo "test will start..."
+
             # start client and log it into output
             ip netns exec client-net ./networkQuality \
-              --url https://networkquality.example.com:4043/.well-known/nq \
-              --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> output.txt
-            printf "\n" >> output.txt
+              --connect-to 10.237.0.3 \
+              --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
             # kill server and delete network
-            kill "$server_pid" 2>/dev/null || true
+            ip netns exec server-net pkill -TERM -f '\./networkqualityd' || true
+            echo "server killed"
             ./setup-shaping.sh DELETE
           done    
           ((i+=steps))
         done 
-      fi     
-      printf "\n" >> output.txt
+      fi 
     done < rpmparameters/testparameters.txt
-    printf "\n" >> output.txt
   done < rpmparameters/environments.txt
+  echo "test done" >> "${MEASUREMENT_DIR}/progress.log"
 }
 
 # iterate through a pair of test parameters
@@ -251,10 +315,8 @@ iterParametersTwoDims () {
   done < rpmparameters/environments.txt
 }
 
-if [ ! -f "output.txt" ]; then
-  touch output.txt
-fi
-cat /dev/null > output.txt
+
+
 iterParameters
-mv output.txt outputfiles/
-python3 create_csv.py # this will create a csv file with the output.txt
+touch "${MEASUREMENT_DIR}/output.csv"
+python3 create_csv.py "${MEASUREMENT_DIR}" # this will create a csv file with the output.txt
