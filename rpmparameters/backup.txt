@@ -1,12 +1,15 @@
 testparameter:
 default
-mad 2 6 1
-mnp 8 24 4
-mps 50 150 10
-p 80 95 1
-ptc 0.05 0.15 0.01
-sdt 5 15 1
-timeout 15 25 1
+mnp 8 12 4
+mnp 20 24 4
+mps 60 80 10
+mps 120 140 10
+p 85 89 2
+p 91 95 2
+ptc 0.06 0.1 0.02
+sdt 7 15 2
+timeout 15 17 2
+timeout 23 25 2
 
 environements:
 VDSL 100 40 5 5 

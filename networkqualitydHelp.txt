@@ -1,0 +1,43 @@
+Usage of ./networkqualityd:
+  -announce
+        announce this server using DNS-SD
+  -announceName string
+        Name to use for DNS-SD announcement (defaults to --config-name
+  -cert-file string
+        cert to use
+  -config-name string
+        domain to generate config for (default "networkquality.example.com")
+  -context-path string
+        context-path if behind a reverse-proxy
+  -create-cert
+        generate self-signed certs
+  -debug
+        enable debug mode
+  -enable-cors
+        enable CORS headers
+  -enable-h2c
+        enable h2c (non-TLS http/2 prior knowledge) mode
+  -enable-http2
+        enable HTTP/2 (default true)
+  -enable-http3
+        enable HTTP/3
+  -enable-l4s
+        Enable L4S using the default congestion control algorithm, prague.
+  -enable-l4s-algorithm string
+        Enable L4S using the specified congestion control algorithm
+  -insecure-public-port int
+        The port to listen on for HTTP measurement accesses
+  -key-file string
+        key to use
+  -listen-addr string
+        address to bind to (default "localhost")
+  -public-name string
+        host to generate config for (same as -config-name if not specified)
+  -public-port int
+        The port to listen on for HTTPS/H2C/HTTP3 measurement accesses (default 4043)
+  -socket-send-buffer-size uint
+        The size of the socket send buffer via TCP_NOTSENT_LOWAT. Zero/unset means to leave unset
+  -tos string
+        set TOS for listening socket (default "0")
+  -version
+        Show version

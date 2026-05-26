@@ -43,6 +43,8 @@ iperfReference () {
 iterParameters () {
   # first we make a directory for the whole measurement:
   MEASUREMENT_DIR="outputfiles/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
+  # if were on the server:
+  # MEASUREMENT_DIR="/data/rpm_measurements/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
   mkdir "${MEASUREMENT_DIR}"
   touch "${MEASUREMENT_DIR}/progress.log"
   # loop over the environments (environment-name, capacities and delay in both directions)
@@ -68,7 +70,7 @@ iterParameters () {
         while [ "$(bc <<< "$i <= $p_max")" == "1"  ]; do
           mkdir "${TEST_DIR}/At${i}"                    
           # we do 100 iterations
-          for j in {1..2}; do
+          for j in {1..100}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" >> "${MEASUREMENT_DIR}/progress.log"
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
@@ -101,7 +103,7 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE}
 
             # start capturing packets
-            ip netns exec bottleneck-net timeout 180s tcpdump -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+            ip netns exec bottleneck-net timeout 180s tcpdump -s 100 -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
 
             echo "test will start..."
 
@@ -126,7 +128,7 @@ iterParameters () {
         # 5. server and emulation shutdown
         iperfReference
         #  we do 100 iterations
-        for j in {1..1}; do
+        for j in {1..100}; do
           echo "currently: ${envname}_${test_parameter}_iteration${j}" >> "${MEASUREMENT_DIR}/progress.log" 
           mkdir "${TEST_DIR}/${j}"
           TEST_FILE="${TEST_DIR}/${j}/test_output.log"
@@ -136,7 +138,7 @@ iterParameters () {
           cat /dev/null > ${TEST_FILE}              
           ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
           # start server and get pid for killing later
-          ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
+          ip netns exec server-net ./networkqualityd --create-cert --listen-addr 10.237.0.3 \
             >/tmp/server.log 2>&1 &
           server_pid=$!
 
@@ -159,15 +161,15 @@ iterParameters () {
 		      echo "iteration ${j}" >> ${TEST_FILE}
 
           # start capturing packets
-          ip netns exec bottleneck-net timeout 180s tcpdump -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+          ip netns exec bottleneck-net timeout 180s tcpdump -s 100 -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
 
           echo "test will start..."
 
-
+ 
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            -extended-stats -relative-rpm >> ${TEST_FILE}
+            -extended-stats -relative-rpm -ssl-key-file "${KEYS_FILE}" >> ${TEST_FILE}
           echo "test done."
 
           # for some reason i cant kill tcpdump; says i dont have permission
@@ -190,7 +192,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..1}; do
+          for j in {1..100}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" >> "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
@@ -222,7 +224,7 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE}
 
             # start capturing packets
-            ip netns exec bottleneck-net timeout 180s tcpdump -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+            ip netns exec bottleneck-net timeout 180s tcpdump -s 100 -i veth0 -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
             
             echo "test will start..."
 
@@ -319,4 +321,4 @@ iterParametersTwoDims () {
 
 iterParameters
 touch "${MEASUREMENT_DIR}/output.csv"
-python3 create_csv.py "${MEASUREMENT_DIR}" # this will create a csv file with the output.txt
+# python3 create_csv.py "${MEASUREMENT_DIR}" # this will create a csv file with the output.txt
