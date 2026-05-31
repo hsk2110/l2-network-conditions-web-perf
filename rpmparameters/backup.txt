@@ -1,5 +1,7 @@
 testparameter:
 default
+mad 2 3 1
+mad 5 6 1
 mnp 8 12 4
 mnp 20 24 4
 mps 60 80 10
