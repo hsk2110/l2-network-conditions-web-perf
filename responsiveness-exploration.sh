@@ -105,20 +105,18 @@ iterParameters () {
             echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> ${TEST_FILE}
             echo "Testing test parameter ${test_parameter} ${i}" >> ${TEST_FILE}
             echo "iteration ${j}" >> ${TEST_FILE} 
-         
-            echo "test will start..."
 
             # start client and log it into output
             ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
               --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
-            # kill server and delete network
+
+            echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
+            # kill server and tcpdump and delete network
             kill "$SERVER_PID" 2>/dev/null || true
             wait "$SERVER_PID" 2>/dev/null || true
-            echo "iperf3 killed."
             kill "$TCPDUMP_PID" 2>/dev/null || true
             wait "$TCPDUMP_PID" 2>/dev/null || true
-            echo "tcpdump killed."
             ./setup-shaping.sh DELETE
             done
           i=$(echo "$i + $steps" | bc -l)    
@@ -152,7 +150,6 @@ iterParameters () {
             >/tmp/server.log 2>&1 &
           SERVER_PID=$!
 
-          echo "server online"
           # Wait until the server port is reachable
           ip netns exec client-net bash -c '
             for i in {1..300}; do
@@ -164,28 +161,22 @@ iterParameters () {
           ' || { kill "$SERVER_PID" 2>/dev/null || true; ./setup-shaping.sh DELETE; exit 1; }
 
           # log the set test parameters into output
-          echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}"
           echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> ${TEST_FILE}
 		      echo "iteration ${j}" >> ${TEST_FILE}
-          echo "iteration ${j}"
-
-          echo "test will start..."
-
  
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
             -extended-stats -relative-rpm >> ${TEST_FILE}
-          echo "test done."
+          echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
 
-          # kill server and delete network
+          # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
           wait "$SERVER_PID" 2>/dev/null || true
-          echo "iperf3 killed."
           kill "$TCPDUMP_PID" 2>/dev/null || true
           wait "$TCPDUMP_PID" 2>/dev/null || true
-          echo "tcpdump killed."
           ./setup-shaping.sh DELETE
+
         done
       else
         # for integers
@@ -235,6 +226,8 @@ iterParameters () {
             ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
               --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+
+            echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
             wait "$SERVER_PID" 2>/dev/null || true
