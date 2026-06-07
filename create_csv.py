@@ -149,7 +149,7 @@ def parseFile (filename):
             elif line.startswith("iteration"):
                 data[fieldnames[46]] = split_line[1]
             
-
+# if you work on the server you have to edit the path!!!! (dont forget like last time!)
 measurement_folder = Path(f"outputfiles/{sys.argv[1]}")
 csvfile = os.path.join(os.getcwd(), f"outputfiles/{sys.argv[1]}/output.csv")
 
