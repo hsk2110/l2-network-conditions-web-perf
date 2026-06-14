@@ -1,0 +1,31 @@
+Stability
+
+MPS
+- stable responsiveness more likely with less mps
+- stable throughput more likely with more mps
+
+MNP
+- stable responsiveness more likely with less mnp
+- stable throughput doesnt seem to be affected? (hard to see)
+
+TIMEOUT
+- more likely to achieve stability with more timeout
+- crazy scaledown for responsiveness
+
+P
+- ?
+
+
+PTC (tested for > 0.05)
+- stable responsiveness goes up?
+- stable throughput goes down i think
+
+MAD
+- stability goes down with higher mad
+
+SDT (tested for > 5)
+- responsiveness more likely to stabilize
+
+Other values
+
+MAD
