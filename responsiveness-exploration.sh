@@ -107,7 +107,7 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE} 
 
             # start client and log it into output
-            ip netns exec client-net ./networkQuality \
+            ip netns exec client-net ./networkQualityNew \
               --connect-to 10.237.0.3 \
               --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
@@ -165,7 +165,7 @@ iterParameters () {
 		      echo "iteration ${j}" >> ${TEST_FILE}
  
           # start client and log it into output
-          ip netns exec client-net ./networkQuality \
+          ip netns exec client-net ./networkQualityNew \
             --connect-to 10.237.0.3 \
             -extended-stats -relative-rpm >> ${TEST_FILE}
           echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
@@ -189,7 +189,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..1}; do
+          for j in {1..100}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
@@ -225,7 +225,7 @@ iterParameters () {
             # start client and log it into output
             ip netns exec client-net ./networkQualityNew \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify --rpm.id 8 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
             # kill server and delete network
