@@ -204,7 +204,7 @@ iterParameters () {
             TCPDUMP_PID=$!
             
             # start server and get pid for killing later
-            ip netns exec server-net ./networkqualityd -create-cert -debug --listen-addr 10.237.0.3 \
+            ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
               >/tmp/server.log 2>&1 &
             SERVER_PID=$!
             # Wait until the server port is reachable
@@ -225,7 +225,7 @@ iterParameters () {
             # start client and log it into output
             ip netns exec client-net ./networkQualityNew \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify -extended-stats -relative-rpm -debug --rpm.id 8 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify --rpm.id 8 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
             # kill server and delete network
