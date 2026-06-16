@@ -25,6 +25,10 @@ Usage of ./networkQuality:
     	Calculate a relative RPM.
   -rpm.id int
     	Duration of the interval between re-evaluating the network conditions (in seconds). (default 1)
+  -rpm.inc int
+    	Number of connections to add to the pool at each interval. (default 1)
+  -rpm.inp int
+    	Initial number of parallel connections to establish at the start of the test. (default 1)
   -rpm.mad int
     	Moving average distance -- number of intervals considered during stability calculations. (default 4)
   -rpm.mnp int

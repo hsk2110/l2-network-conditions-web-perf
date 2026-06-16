@@ -15,7 +15,6 @@ TIMEOUT
 P
 - ?
 
-
 PTC (tested for > 0.05)
 - stable responsiveness goes up?
 - stable throughput goes down i think
@@ -26,6 +25,43 @@ MAD
 SDT (tested for > 5)
 - responsiveness more likely to stabilize
 
-Other values
+Numeric values
 
-MAD
+MAD moving average distance
+- download rpm is higher the less MAD is
+- upload values are less affected
+- final_rpm_p is higher with more MAD
+- final_rpm_trimmed gets lower
+- less working condition effect with higher MAD
+- Cable kind of inverse?
+	- higher rpm
+	- higher wc effects
+
+MNP #connections
+- lower mnp, more rpm, vice versa
+
+MPS #probes per sec
+- more probes lead to more stable connections
+- lower probes lead to higher rpm but with higher variance(vice versa)
+- but final rpm trimmed looks stable
+- Fiber network doesnt seem affected by this
+- what happed to base rpms for Fiber??
+- what happened to base rpm p for Cable??
+
+P percentile of results
+- higher p leads to lower rpm_p values
+
+PTC network capacity for probes (only tested higher than default)
+- seems to produce higher rpm_p values but doesnt seem to affect trimmed rpm
+- for fiber it reduces trimmed values and leaves p values alone
+
+SDT (Standard deviation tolerance)
+- hard to say
+
+timeout RPM calculation time
+VDSL:
+- less time results in better rpm, especially for trimmed
+Fiber:
+-  it reduces rpm_trimmed for non default values?
+Cable:
+- less time results in better rpm trimmed
