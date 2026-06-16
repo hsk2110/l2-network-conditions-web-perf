@@ -1,0 +1,39 @@
+06-16-2026 11:04:42 UTC Go Responsiveness to mensura.cdn-apple.com:443...
+Unbounded Baseline RPM:  3201 (P90)
+Unbounded Baseline RPM:  5003 (Single-Sided 5% Trimmed Mean)
+Baseline RPM:  3114 (P90)
+Baseline RPM:  5006 (Single-Sided 5% Trimmed Mean)
+Warning: Throughput stability could not be reached. Making the test 15 seconds longer to calculate speculative RPM results.
+Results:
+========
+Download:
+	Note: Test did not run to stability (responsiveness), these results are estimates.
+	Throughput: 140.180 Mbps (17.522 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1370
+		Maximum Recv MSS:      1370
+		Total Retransmissions: 14
+		Total Reorderings:     48
+		Average RTT:           35668.1875
+	RPM: 165 (P90)
+	RPM: 1174 (Single-Sided 5% Trimmed Mean)
+========
+Upload:
+	Note: Test did not run to stability (throughput, responsiveness), these results are estimates.
+	Throughput: 180.172 Mbps (22.522 MBps), using 16 parallel connections.
+	Extended Statistics:
+		Maximum Path MTU:      1500
+		Maximum Send MSS:      1208
+		Maximum Recv MSS:      1208
+		Total Retransmissions: 125
+		Total Reorderings:     48
+		Average RTT:           97518.5625
+	RPM: 91 (P90)
+	RPM: 1527 (Single-Sided 5% Trimmed Mean)
+========
+Final RPM: 106 (P90)
+Final RPM: 1613 (Single-Sided 5% Trimmed Mean)
+Working-Conditions Effect: Final RPM is     3% of baseline RPM (P90)
+Working-Conditions Effect: Final RPM is    32% of baseline RPM (Single-Sided 5% Trimmed Mean)
+06-16-2026 11:05:42 UTC Go Responsiveness Finished
