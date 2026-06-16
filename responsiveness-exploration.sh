@@ -111,7 +111,6 @@ iterParameters () {
               --connect-to 10.237.0.3 \
               --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
-            echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
             # kill server and tcpdump and delete network
             kill "$SERVER_PID" 2>/dev/null || true
             wait "$SERVER_PID" 2>/dev/null || true
@@ -168,7 +167,6 @@ iterParameters () {
           ip netns exec client-net ./networkQualityNew \
             --connect-to 10.237.0.3 \
             -extended-stats -relative-rpm >> ${TEST_FILE}
-          echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
@@ -227,7 +225,6 @@ iterParameters () {
               --connect-to 10.237.0.3 \
               --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
-            echo "$(date +%d-%m-%Y %H:%M:%S) Test finished." >> ${TEST_FILE}
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
             wait "$SERVER_PID" 2>/dev/null || true
