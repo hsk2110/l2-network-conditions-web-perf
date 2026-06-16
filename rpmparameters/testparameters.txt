@@ -1,2 +1,2 @@
-inc 8 8
-inp 8 8
+inc 8 8 1
+inp 8 8 1
