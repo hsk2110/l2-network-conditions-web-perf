@@ -315,5 +315,5 @@ iterParametersTwoDims () {
 
 
 iterParameters
-touch "${MEASUREMENT_DIR}/output.csv"
+# touch "${MEASUREMENT_DIR}/output.csv"
 # python3 create_csv.py "${MEASUREMENT_DIR}" # this will create a csv file with the output.txt
