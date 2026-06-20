@@ -150,8 +150,8 @@ def parseFile (filename):
                 data[fieldnames[46]] = split_line[1]
             
 # if you work on the server you have to edit the path!!!! (dont forget like last time!)
-measurement_folder = Path(f"outputfiles/{sys.argv[1]}")
-csvfile = os.path.join(os.getcwd(), f"outputfiles/{sys.argv[1]}/output.csv")
+measurement_folder = Path(f"{sys.argv[1]}")
+csvfile = os.path.join(os.getcwd(), f"{sys.argv[1]}/output.csv")
 
 for file_path in measurement_folder.rglob("test_output.log"):
     if file_path.is_file():
