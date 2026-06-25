@@ -1,2 +1,2 @@
-inc 2 8 2
-inp 2 8 2
+default
+mad 5 5 1

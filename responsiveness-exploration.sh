@@ -128,9 +128,9 @@ iterParameters () {
         # 4. client start
         # (4. Client's output gets logged)
         # 5. server and emulation shutdown
-        iperfReference
+        # iperfReference
         #  we do 100 iterations
-        for j in {1..100}; do
+        for j in {1..200}; do
           echo "currently: ${envname}_${test_parameter}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
           mkdir "${TEST_DIR}/${j}"
           TEST_FILE="${TEST_DIR}/${j}/test_output.log"
@@ -187,7 +187,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..100}; do
+          for j in {1..200}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
