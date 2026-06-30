@@ -130,12 +130,13 @@ iterParameters () {
         # 5. server and emulation shutdown
         # iperfReference
         #  we do 100 iterations
-        for j in {1..200}; do
+        for j in {1..5}; do
           echo "currently: ${envname}_${test_parameter}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
           mkdir "${TEST_DIR}/${j}"
           TEST_FILE="${TEST_DIR}/${j}/test_output.log"
           PCAP_FILE="${TEST_DIR}/${j}/traffic.pcap"
           KEYS_FILE="${TEST_DIR}/${j}/keys.log"
+          SERVER_FILE="${TEST_DIR}/${j}/server_output.log"
           touch ${TEST_FILE}
           cat /dev/null > ${TEST_FILE}              
           ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
@@ -146,7 +147,7 @@ iterParameters () {
           
           # start server and get pid for killing later
           ip netns exec server-net ./networkqualityd --create-cert --listen-addr 10.237.0.3 \
-            >/tmp/server.log 2>&1 &
+            >${SERVER_FILE} 2>&1 &
           SERVER_PID=$!
 
           # Wait until the server port is reachable
@@ -187,7 +188,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..200}; do
+          for j in {1..100}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
