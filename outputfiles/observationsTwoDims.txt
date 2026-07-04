@@ -1,33 +1,52 @@
 Stability
 
-MPS
+connectionsPerInterval INC
+- both stability values more likely with higher inc value
+- maybe its more likely because more time is needed to stabilize
+
+connectionsInitial INP
+- both stability values more likely with higher inc value
+- maybe its more likely because more time is needed to stabilize
+
+probesPerSecond MPS
 - stable responsiveness more likely with less mps
 - stable throughput more likely with more mps
 
-MNP
+maxParallelConnections MNP
 - stable responsiveness more likely with less mnp
 - stable throughput doesnt seem to be affected? (hard to see)
 
-TIMEOUT
+calculationTime TIMEOUT
 - more likely to achieve stability with more timeout
 - crazy scaledown for responsiveness
 
-P
+percentageOfResults P
 - ?
 
-PTC (tested for > 0.05)
+capacityOfProbes PTC (tested for > 0.05)
 - stable responsiveness goes up?
 - stable throughput goes down i think
 
-MAD
+movingAverageDistance MAD
 - stability goes down with higher mad
 
-SDT (tested for > 5)
+stabilityCutoff SDT (tested for > 5)
 - responsiveness more likely to stabilize
 
 Numeric values
 
-MAD moving average distance
+connectionsPerInterval INC (tested 2, 4, 6, 8)
+- throughput lower with higher INC
+- shoot i implemented it wrong
+
+connectionsInitial INP (tested 2, 4, 6, 8)
+- lower throughput with higher INP
+- higher dl_rpm_p but lower rpm_trimmed
+- for upload both rpm get lower
+- final_rpm_p gets lower a bit, final_rpm_trimmed is lowered a lot (Fiber)
+- less working condition effect on trimmed
+
+movingAverageDistance MAD
 - download rpm is higher the less MAD is
 - upload values are less affected
 - final_rpm_p is higher with more MAD
@@ -37,10 +56,10 @@ MAD moving average distance
 	- higher rpm
 	- higher wc effects
 
-MNP #connections
+maxParallelConnections MNP
 - lower mnp, more rpm, vice versa
 
-MPS #probes per sec
+probesPerSecond MPS
 - more probes lead to more stable connections
 - lower probes lead to higher rpm but with higher variance(vice versa)
 - but final rpm trimmed looks stable
@@ -48,17 +67,17 @@ MPS #probes per sec
 - what happed to base rpms for Fiber??
 - what happened to base rpm p for Cable??
 
-P percentile of results
+percentageOfResults P
 - higher p leads to lower rpm_p values
 
-PTC network capacity for probes (only tested higher than default)
+capacityOfProbes PTC (only tested higher than default)
 - seems to produce higher rpm_p values but doesnt seem to affect trimmed rpm
 - for fiber it reduces trimmed values and leaves p values alone
 
-SDT (Standard deviation tolerance)
+stabilityCutoff SDT (Standard deviation tolerance)
 - hard to say
 
-timeout RPM calculation time
+calculationTime TIMEOUT
 VDSL:
 - less time results in better rpm, especially for trimmed
 Fiber:
