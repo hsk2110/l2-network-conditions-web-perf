@@ -107,7 +107,7 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE} 
 
             # start client and log it into output
-            ip netns exec client-net ./networkQualityNew \
+            ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
               --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
@@ -128,9 +128,9 @@ iterParameters () {
         # 4. client start
         # (4. Client's output gets logged)
         # 5. server and emulation shutdown
-        # iperfReference
+        iperfReference
         #  we do 100 iterations
-        for j in {1..2}; do
+        for j in {1..100}; do
           echo "currently: ${envname}_${test_parameter}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
           mkdir "${TEST_DIR}/${j}"
           TEST_FILE="${TEST_DIR}/${j}/test_output.log"
@@ -146,7 +146,7 @@ iterParameters () {
           TCPDUMP_PID=$!
           
           # start server and get pid for killing later
-          ip netns exec server-net ./networkqualityd --create-cert -debug --listen-addr 10.237.0.3 \
+          ip netns exec server-net ./networkqualityd --create-cert --listen-addr 10.237.0.3 \
             >${SERVER_FILE} 2>&1 &
           SERVER_PID=$!
 
@@ -165,9 +165,9 @@ iterParameters () {
 		      echo "iteration ${j}" >> ${TEST_FILE}
  
           # start client and log it into output
-          ip netns exec client-net ./networkQualityNew \
+          ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            -extended-stats -debug -relative-rpm >> ${TEST_FILE}
+            -extended-stats -relative-rpm >> ${TEST_FILE}
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
@@ -203,7 +203,7 @@ iterParameters () {
             TCPDUMP_PID=$!
             
             # start server and get pid for killing later
-            ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
+            ip netns exec server-net ./networkqualityd -create-cert -debug --listen-addr 10.237.0.3 \
               >/tmp/server.log 2>&1 &
             SERVER_PID=$!
             # Wait until the server port is reachable
@@ -222,9 +222,9 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE}
 
             # start client and log it into output
-            ip netns exec client-net ./networkQualityNew \
+            ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify -extended-stats -debug -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
