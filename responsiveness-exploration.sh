@@ -78,7 +78,7 @@ iterParameters () {
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
             PCAP_FILE="${TEST_DIR}/At${i}/${j}/traffic.pcap"
             KEYS_FILE="${TEST_DIR}/At${i}/${j}/test_keys.keys"
-            SERVER_FILE="${TEST_DIR}/${j}/server_output.log"
+            SERVER_FILE="${TEST_DIR}/At${i}/${j}/server_output.log"
             touch ${TEST_FILE}
             cat /dev/null > ${TEST_FILE}          
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
@@ -195,7 +195,7 @@ iterParameters () {
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
             PCAP_FILE="${TEST_DIR}/At${i}/${j}/traffic.pcap"
             KEYS_FILE="${TEST_DIR}/At${i}/${j}/test_keys.keys"
-            SERVER_FILE="${TEST_DIR}/${j}/server_output.log"
+            SERVER_FILE="${TEST_DIR}/At${i}/${j}/server_output.log"
             touch ${TEST_FILE}
             cat /dev/null > ${TEST_FILE}
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
