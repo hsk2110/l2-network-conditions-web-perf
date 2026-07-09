@@ -78,6 +78,7 @@ iterParameters () {
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
             PCAP_FILE="${TEST_DIR}/At${i}/${j}/traffic.pcap"
             KEYS_FILE="${TEST_DIR}/At${i}/${j}/test_keys.keys"
+            SERVER_FILE="${TEST_DIR}/${j}/server_output.log"
             touch ${TEST_FILE}
             cat /dev/null > ${TEST_FILE}          
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
@@ -88,7 +89,7 @@ iterParameters () {
             
             # start server and get pid for killing later
             ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
-              >/tmp/server.log 2>&1 &
+              >${SERVER_FILE} 2>&1 &
             SERVER_PID=$!
             
             # Wait until the server port is reachable
@@ -194,6 +195,7 @@ iterParameters () {
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
             PCAP_FILE="${TEST_DIR}/At${i}/${j}/traffic.pcap"
             KEYS_FILE="${TEST_DIR}/At${i}/${j}/test_keys.keys"
+            SERVER_FILE="${TEST_DIR}/${j}/server_output.log"
             touch ${TEST_FILE}
             cat /dev/null > ${TEST_FILE}
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
@@ -204,7 +206,7 @@ iterParameters () {
             
             # start server and get pid for killing later
             ip netns exec server-net ./networkqualityd -create-cert -debug --listen-addr 10.237.0.3 \
-              >/tmp/server.log 2>&1 &
+              >${SERVER_FILE}2>&1 &
             SERVER_PID=$!
             # Wait until the server port is reachable
             ip netns exec client-net bash -c '
