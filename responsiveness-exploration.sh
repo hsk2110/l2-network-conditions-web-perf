@@ -45,9 +45,9 @@ iperfReference () {
 # single dimensional iteration through test parameters
 iterParameters () {
   # first we make a directory for the whole measurement:
-  MEASUREMENT_DIR="outputfiles/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
+  # MEASUREMENT_DIR="outputfiles/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
   # if on the server:
-  # MEASUREMENT_DIR="/data/rpm_measurements/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
+  MEASUREMENT_DIR="/data/rpm_measurements/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
   mkdir "${MEASUREMENT_DIR}"
   touch "${MEASUREMENT_DIR}/progress.log"
   # loop over the environments (environment-name, capacities and delay in both directions)
@@ -189,7 +189,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..100}; do
+          for j in {1..300}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
