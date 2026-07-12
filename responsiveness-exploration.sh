@@ -189,7 +189,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..300}; do
+          for j in {1..500}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
@@ -201,8 +201,8 @@ iterParameters () {
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
             
             # start capturing packets
-            ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
-            TCPDUMP_PID=$!
+            #ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+            #TCPDUMP_PID=$!
             
             # start server and get pid for killing later
             ip netns exec server-net ./networkqualityd -create-cert -debug --listen-addr 10.237.0.3 \
@@ -231,8 +231,8 @@ iterParameters () {
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
             wait "$SERVER_PID" 2>/dev/null || true
-            kill "$TCPDUMP_PID" 2>/dev/null || true
-            wait "$TCPDUMP_PID" 2>/dev/null || true
+            #kill "$TCPDUMP_PID" 2>/dev/null || true
+            #wait "$TCPDUMP_PID" 2>/dev/null || true
             ./setup-shaping.sh DELETE
           done    
           ((i+=steps))
