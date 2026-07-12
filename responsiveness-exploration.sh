@@ -206,7 +206,7 @@ iterParameters () {
             
             # start server and get pid for killing later
             ip netns exec server-net ./networkqualityd -create-cert -debug --listen-addr 10.237.0.3 \
-              >${SERVER_FILE}2>&1 &
+              >${SERVER_FILE} 2>&1 &
             SERVER_PID=$!
             # Wait until the server port is reachable
             ip netns exec client-net bash -c '
