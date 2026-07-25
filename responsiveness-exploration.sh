@@ -15,8 +15,8 @@ iperfReference () {
   ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms  
   
   # start capturing
-  ip netns exec bottleneck-net tcpdump -s 100 -G 3600 -i br-client-inet -w "${TEST_DIR}/iperf_traffic.pcap" 2> /tmp/tcpdump.log &
-  TCPDUMP_PID=$!
+  # ip netns exec bottleneck-net tcpdump -s 100 -G 3600 -i br-client-inet -w "${TEST_DIR}/iperf_traffic.pcap" 2> /tmp/tcpdump.log &
+  # TCPDUMP_PID=$!
 
   ip netns exec server-net iperf3 -s -B 10.237.0.3 > "${TEST_DIR}/iperf_server.log" 2>&1 &
   SERVER_PID=$!
@@ -32,16 +32,13 @@ iperfReference () {
   kill -SIGINT $SERVER_PID
   wait $SERVER_PID
   echo "iperf3 killed."
-  kill -SIGINT $TCPDUMP_PID
-  wait $TCPDUMP_PID
-  echo "tcpdump killed."
+  # kill -SIGINT $TCPDUMP_PID
+  # wait $TCPDUMP_PID
+  # echo "tcpdump killed."
   
   ./setup-shaping.sh DELETE
 }
 
-
-# TODO: run "openssl req -x509 -newkey rsa:2048 -keyout privkey.pem -out fullchain.pem -days 365 -nodes -subj "/CN=networkquality.example.com""
-# and use these cert and key for the server
 # single dimensional iteration through test parameters
 iterParameters () {
   # first we make a directory for the whole measurement:
@@ -110,7 +107,7 @@ iterParameters () {
             # start client and log it into output
             ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify -relative-rpm -extended-stats -debug --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             # kill server and tcpdump and delete network
             kill "$SERVER_PID" 2>/dev/null || true
@@ -168,7 +165,7 @@ iterParameters () {
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            -extended-stats -relative-rpm >> ${TEST_FILE}
+            -extended-stats -debug -rpm.id 5 -relative-rpm >> ${TEST_FILE}
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
@@ -189,7 +186,7 @@ iterParameters () {
         while (( i <= p_max )); do
           mkdir "${TEST_DIR}/At${i}"
           #  we do 100 iterations
-          for j in {1..500}; do
+          for j in {1..100}; do
             echo "currently: ${envname}_${test_parameter}_at${i}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
             mkdir "${TEST_DIR}/At${i}/${j}"
             TEST_FILE="${TEST_DIR}/At${i}/${j}/test_output.log"
@@ -201,11 +198,11 @@ iterParameters () {
             ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
             
             # start capturing packets
-            #ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
-            #TCPDUMP_PID=$!
+            ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+            TCPDUMP_PID=$!
             
             # start server and get pid for killing later
-            ip netns exec server-net ./networkqualityd -create-cert -debug --listen-addr 10.237.0.3 \
+            ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
               >${SERVER_FILE} 2>&1 &
             SERVER_PID=$!
             # Wait until the server port is reachable
@@ -231,8 +228,8 @@ iterParameters () {
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
             wait "$SERVER_PID" 2>/dev/null || true
-            #kill "$TCPDUMP_PID" 2>/dev/null || true
-            #wait "$TCPDUMP_PID" 2>/dev/null || true
+            kill "$TCPDUMP_PID" 2>/dev/null || true
+            wait "$TCPDUMP_PID" 2>/dev/null || true
             ./setup-shaping.sh DELETE
           done    
           ((i+=steps))

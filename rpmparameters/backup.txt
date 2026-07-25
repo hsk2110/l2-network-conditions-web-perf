@@ -17,3 +17,13 @@ environements:
 VDSL 100 40 5 5 
 Cable 250 50 10 10 
 Fiber 600 300 4 4 
+
+mad: movingAverageDistance
+mnp: numberParallelConnections
+mps: probesPerSec
+p: percentageOfResults
+ptc: percentageNetworkCap
+sdt: stabilityCutoff
+timeout: rpmCalculationTime
+inc: connectionsPerInterval
+inp: connectionsAtInit
