@@ -68,10 +68,10 @@ def parseFile (filename):
                         data[split_line[3]] = split_line[4]
                 elif op.contains(line, "UTC Go Responsiveness"):
                     if startTime:
-                        data[fieldnames[49]] = split_line[0] + split_line[1]
+                        data[fieldnames[49]] = split_line[0] + ' ' + split_line[1]
                         startTime = False
                     else:
-                        data[fieldnames[50]] = split_line[0] + split_line[1]
+                        data[fieldnames[50]] = split_line[0] + ' ' + split_line[1]
                         startTime = True
                         datalist.append(data)
                         data = {}
