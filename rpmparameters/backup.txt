@@ -1,5 +1,6 @@
 testparameter:
 default
+id 1 5 1
 mad 2 3 1
 mad 5 6 1
 mnp 8 12 4
@@ -27,3 +28,18 @@ sdt: stabilityCutoff
 timeout: rpmCalculationTime
 inc: connectionsPerInterval
 inp: connectionsAtInit
+
+
+
+
+- default id=5
+- probesPerSecond 40-140, 20 steps
+- maxparallelconnections 1
+- maxparallelconnections 8-20, 4 steps
+- stabilityCutoff [3, 5, 7]
+
+finalRpmP:  43.65
+baseRPMP: 5429.75
+
+finalRPMTr: 979.62
+baseRPMTr: 5540.13
