@@ -165,7 +165,7 @@ iterParameters () {
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            -extended-stats -debug -rpm.id 5 -relative-rpm >> ${TEST_FILE}
+            -extended-stats -debug -relative-rpm >> ${TEST_FILE}
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
