@@ -1,7 +1,8 @@
 default
-id 1 4 1
 mps 40 80 20
 mps 120 140 20
 mnp 8 12 4
 mnp 20 20 4
 sdt 3 7 4
+inc 2 5 1
+ptc 0.01 0.1 0.09
