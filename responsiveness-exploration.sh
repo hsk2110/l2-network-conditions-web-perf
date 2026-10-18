@@ -221,9 +221,10 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE}
 
             # start client and log it into output
+            # HAVE EDITED IT FOR TWO DIM EDIT IT OUT LATER
             ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify -extended-stats -debug -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify -extended-stats -debug -relative-rpm --rpm.inc 2 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
