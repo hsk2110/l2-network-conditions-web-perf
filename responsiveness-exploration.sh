@@ -128,7 +128,7 @@ iterParameters () {
         # 5. server and emulation shutdown
         iperfReference
         #  we do 100 iterations
-        for j in {1..50}; do
+        for j in {1..100}; do
           echo "currently: ${envname}_${test_parameter}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log" 
           mkdir "${TEST_DIR}/${j}"
           TEST_FILE="${TEST_DIR}/${j}/test_output.log"
@@ -165,7 +165,7 @@ iterParameters () {
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            -extended-stats -relative-rpm >> ${TEST_FILE}
+            -extended-stats -debug -relative-rpm >> ${TEST_FILE}
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
