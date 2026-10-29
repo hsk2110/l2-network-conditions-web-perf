@@ -1,1 +1,7 @@
 default
+mps 40 80 10
+mps 120 140 10
+mnp 8 12 4
+mnp 20 20 4
+sdt 3 7 4
+inc 2 5 1

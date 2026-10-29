@@ -107,7 +107,7 @@ iterParameters () {
             # start client and log it into output
             ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify -relative-rpm -extended-stats -debug --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify -relative-rpm -extended-stats --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             # kill server and tcpdump and delete network
             kill "$SERVER_PID" 2>/dev/null || true
@@ -165,7 +165,7 @@ iterParameters () {
           # start client and log it into output
           ip netns exec client-net ./networkQuality \
             --connect-to 10.237.0.3 \
-            -extended-stats -debug -relative-rpm >> ${TEST_FILE}
+            -extended-stats -relative-rpm >> ${TEST_FILE}
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
@@ -224,7 +224,7 @@ iterParameters () {
             # HAVE EDITED IT FOR TWO DIM EDIT IT OUT LATER
             ip netns exec client-net ./networkQuality \
               --connect-to 10.237.0.3 \
-              --insecure-skip-verify -extended-stats -debug -relative-rpm --rpm.inc 2 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+              --insecure-skip-verify -extended-stats -relative-rpm --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
 
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
