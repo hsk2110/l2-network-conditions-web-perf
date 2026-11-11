@@ -6,6 +6,7 @@ from datetime import datetime
 
 def parse_file(filename: Path):
     fmt = "%m-%d-%Y %H:%M:%S"
+    experiment = ""
     start_time = None
     unloaded_time = None
     download_time = None
@@ -31,8 +32,16 @@ def parse_file(filename: Path):
                 end_time = datetime.strptime(f"{parts[0]} {parts[1]}", fmt)
             elif "Unloaded packet generation ended at" in line:
                 unloaded_time = datetime.strptime(line.split("at ", 1)[1].strip(), fmt)
+            elif "Testing network environment" in line:
+                parts = line.split()
+                experiment += parts[3]
+            elif "Testing test parameter" in line:
+                parts = line.split()
+                experiment += " " + parts[3]
+        if len(experiment.split()) < 2:
+            experiment += " default"
 
-    if not all([start_time, unloaded_time, download_time, upload_time, end_time]):
+    if not all([experiment, start_time, unloaded_time, download_time, upload_time, end_time]):
         return None
 
     unloaded_duration = (unloaded_time - start_time).total_seconds()
@@ -42,6 +51,7 @@ def parse_file(filename: Path):
     test_duration = (end_time - start_time).total_seconds()
 
     return {
+        "exp_parameters": experiment,
         "unloaded_duration_s": unloaded_duration,
         "download_duration_s": download_duration,
         "upload_duration_s": upload_duration,
@@ -75,6 +85,7 @@ def main():
         writer = csv.DictWriter(
             f,
             fieldnames=[
+                "exp_parameters",
                 "unloaded_duration_s",
                 "download_duration_s",
                 "upload_duration_s",
