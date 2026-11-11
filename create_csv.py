@@ -47,37 +47,52 @@ def initData(data):
     data[fieldnames[29]] = 'True'   #ul_stable_responsiveness
 
 
-def parseFile (filename):
-    
+# ...existing code...
+import csv
+import os
+import sys
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+
+# ...existing code...
+
+def parseFile(filename):
+    data = {}
+    initData(data)
+    download = True
+    readResults = False
+    f = fieldnames  # local alias for slightly faster lookups
+
     with open(filename, "r") as file:
-        lines = file.readlines()
-        data = {}
-        initData(data)
-        download = True
-        readResults = False
-        for line in lines:
-            line = line.strip()
-            split_line = line.split()
-            if not readResults:                        
-                if line.startswith("Testing"):                
-                    if op.contains(line, "environment"):
+        for raw_line in file:
+            line = raw_line.strip()
+            if not line:
+                continue
+
+            if not readResults:
+                if line.startswith("Testing"):
+                    split_line = line.split()
+                    if "environment" in line:
                         for i in range(0, 5):
-                            data[fieldnames[i]] = split_line[i + 3]
+                            data[f[i]] = split_line[i + 3]
                     else:
-                        data[fieldnames[0]] += ' ' + split_line[3]
+                        data[f[0]] += " " + split_line[3]
                         data[split_line[3]] = split_line[4]
                 elif line.startswith("Unbounded Baseline RPM:"):
-                    if op.contains(line, "Trimmed"):
-                        data[fieldnames[43]] = split_line[3]
+                    split_line = line.split()
+                    if "Trimmed" in line:
+                        data[f[43]] = split_line[3]
                     else:
-                        data[fieldnames[42]] = split_line[3]
+                        data[f[42]] = split_line[3]
                 elif line.startswith("Baseline RPM:"):
-                    if op.contains(line, "Trimmed"):
-                        data[fieldnames[45]] = split_line[2]
+                    split_line = line.split()
+                    if "Trimmed" in line:
+                        data[f[45]] = split_line[2]
                     else:
-                        data[fieldnames[44]] = split_line[2]
+                        data[f[44]] = split_line[2]
                 elif line.startswith("iteration"):
-                    data[fieldnames[48]] = split_line[1]
+                    split_line = line.split()
+                    data[f[48]] = split_line[1]
                 elif line == "Results:":
                     readResults = True
             else:
@@ -86,90 +101,72 @@ def parseFile (filename):
                 elif line.startswith("Upload"):
                     download = False
                 elif line.startswith("Note"):
-                    if op.contains(line, "responsiveness"):
-                        if download:
-                            data[fieldnames[17]] = 'False'
-                        else:
-                            data[fieldnames[29]] = 'False'
-                    if op.contains(line, "throughput"):
-                        if download:
-                            data[fieldnames[16]] = 'False'
-                        else:
-                            data[fieldnames[28]] = 'False'
+                    if "responsiveness" in line:
+                        data[f[17] if download else f[29]] = "False"
+                    if "throughput" in line:
+                        data[f[16] if download else f[28]] = "False"
                 elif line.startswith("Throughput"):
+                    split_line = line.split()
                     if download:
-                        data[fieldnames[18]] = split_line[1]
-                        data[fieldnames[19]] = split_line[6]
+                        data[f[18]] = split_line[1]
+                        data[f[19]] = split_line[6]
                     else:
-                        data[fieldnames[30]] = split_line[1]
-                        data[fieldnames[31]] = split_line[6]
-                elif op.contains(line, "MTU"):
-                    if download:
-                        data[fieldnames[20]] = split_line[3]
-                    else:
-                        data[fieldnames[32]] = split_line[3]
-                elif op.contains(line, "Send"):
-                    if download:
-                        data[fieldnames[21]] = split_line[3]
-                    else:
-                        data[fieldnames[33]] = split_line[3]
-                elif op.contains(line, "Recv"):
-                    if download:
-                        data[fieldnames[22]] = split_line[3]
-                    else:
-                        data[fieldnames[34]] = split_line[3]
-                elif op.contains(line, "Retransmissions"):
-                    if download:
-                        data[fieldnames[23]] = split_line[2]
-                    else:
-                        data[fieldnames[35]] = split_line[2]
-                elif op.contains(line, "Reorderings"):
-                    if download:
-                        data[fieldnames[24]] = split_line[2]
-                    else:
-                        data[fieldnames[36]] = split_line[2]
+                        data[f[30]] = split_line[1]
+                        data[f[31]] = split_line[6]
+                elif "MTU" in line:
+                    split_line = line.split()
+                    data[f[20] if download else f[32]] = split_line[3]
+                elif "Send" in line:
+                    split_line = line.split()
+                    data[f[21] if download else f[33]] = split_line[3]
+                elif "Recv" in line:
+                    split_line = line.split()
+                    data[f[22] if download else f[34]] = split_line[3]
+                elif "Retransmissions" in line:
+                    split_line = line.split()
+                    data[f[23] if download else f[35]] = split_line[2]
+                elif "Reorderings" in line:
+                    split_line = line.split()
+                    data[f[24] if download else f[36]] = split_line[2]
                 elif line.startswith("Average RTT:"):
-                    if download:
-                        data[fieldnames[25]] = split_line[2]
-                    else:
-                        data[fieldnames[37]] = split_line[2]
+                    split_line = line.split()
+                    data[f[25] if download else f[37]] = split_line[2]
                 elif line.startswith("RPM"):
-                    if op.contains(line, "Trimmed"):
-                        if download:
-                            data[fieldnames[27]] = split_line[1]
-                        else:
-                            data[fieldnames[39]] = split_line[1]
+                    split_line = line.split()
+                    if "Trimmed" in line:
+                        data[f[27] if download else f[39]] = split_line[1]
                     else:
-                        if download:
-                            data[fieldnames[26]] = split_line[1]
-                        else:
-                            data[fieldnames[38]] = split_line[1]
+                        data[f[26] if download else f[38]] = split_line[1]
                 elif line.startswith("Final"):
-                    if op.contains(line, "Trimmed"):
-                        data[fieldnames[41]] = split_line[2]
+                    split_line = line.split()
+                    if "Trimmed" in line:
+                        data[f[41]] = split_line[2]
                     else:
-                        data[fieldnames[40]] = split_line[2]
+                        data[f[40]] = split_line[2]
                 elif line.startswith("Working"):
-                    if op.contains(line, "Trimmed"):
-                        data[fieldnames[47]] = split_line[5][:-1]
+                    split_line = line.split()
+                    if "Trimmed" in line:
+                        data[f[47]] = split_line[5][:-1]
                         readResults = False
                     else:
-                        data[fieldnames[46]] = split_line[5][:-1]
+                        data[f[46]] = split_line[5][:-1]
 
-        datalist.append(data)
-            
+    return data
+
 # if you work on the server you have to edit the path!!!! (dont forget like last time!)
-measurement_folder = Path(f"{sys.argv[1]}")
-csvfile = os.path.join(os.getcwd(), f"{sys.argv[1]}/output.csv")
+measurement_folder = Path(sys.argv[1])
+csvfile = measurement_folder / "output.csv"
 
-for file_path in measurement_folder.rglob("test_output.log"):
-    if file_path.is_file():
-        parseFile(file_path)
+files = [p for p in measurement_folder.rglob("test_output.log") if p.is_file()]
+
+with ThreadPoolExecutor(max_workers=min(32, (os.cpu_count() or 1) + 4)) as ex:
+    datalist = list(ex.map(parseFile, files))
 
 # write the datalist into the csv file
-with open(csvfile, 'w') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+with open(csvfile, "w", newline="") as f_out:
+    writer = csv.DictWriter(f_out, fieldnames=fieldnames)
     writer.writeheader()
     writer.writerows(datalist)
 
-print('created csv')
+print("created csv")
+# ...existing code...
