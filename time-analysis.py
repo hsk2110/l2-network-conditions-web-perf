@@ -1,62 +1,62 @@
 import csv
+import os
 import sys
-from pathlib import Path
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
+from pathlib import Path
 
+FMT = "%m-%d-%Y %H:%M:%S"
 
 def parse_file(filename: Path):
-    fmt = "%m-%d-%Y %H:%M:%S"
-    experiment = ""
-    start_time = None
-    unloaded_time = None
-    download_time = None
-    upload_time = None
-    end_time = None
+    experiment = []
+    start_time = unloaded_time = download_time = upload_time = end_time = None
 
     with open(filename, "r", encoding="utf-8") as file:
         for raw_line in file:
             line = raw_line.strip()
+            if not line:
+                continue
 
             if "UTC Go Responsiveness to" in line:
                 parts = line.split()
-                start_time = datetime.strptime(f"{parts[0]} {parts[1]}", fmt)
+                start_time = datetime.strptime(f"{parts[0]} {parts[1]}", FMT)
 
             elif line.startswith("Download phase finished at"):
-                download_time = datetime.strptime(line.split("at ", 1)[1].strip(), fmt)
+                download_time = datetime.strptime(line.rsplit("at ", 1)[1].strip(), FMT)
 
             elif line.startswith("Upload phase finished at"):
-                upload_time = datetime.strptime(line.split("at ", 1)[1].strip(), fmt)
+                upload_time = datetime.strptime(line.rsplit("at ", 1)[1].strip(), FMT)
 
             elif "UTC Go Responsiveness Finished" in line:
                 parts = line.split()
-                end_time = datetime.strptime(f"{parts[0]} {parts[1]}", fmt)
+                end_time = datetime.strptime(f"{parts[0]} {parts[1]}", FMT)
+
             elif "Unloaded packet generation ended at" in line:
-                unloaded_time = datetime.strptime(line.split("at ", 1)[1].strip(), fmt)
+                unloaded_time = datetime.strptime(line.rsplit("at ", 1)[1].strip(), FMT)
+
             elif "Testing network environment" in line:
                 parts = line.split()
-                experiment += parts[3]
+                if len(parts) > 3:
+                    experiment.append(parts[3])
+
             elif "Testing test parameter" in line:
                 parts = line.split()
-                experiment += " " + parts[3]
-        if len(experiment.split()) < 2:
-            experiment += " default"
+                if len(parts) > 4:
+                    experiment.extend([parts[3], parts[4]])
+
+    if len(experiment) < 2:
+        experiment.append("default")
 
     if not all([experiment, start_time, unloaded_time, download_time, upload_time, end_time]):
         return None
 
-    unloaded_duration = (unloaded_time - start_time).total_seconds()
-    download_duration = (download_time - unloaded_time).total_seconds()
-    upload_duration = (upload_time - download_time).total_seconds()
-    packets_duration = (upload_time - start_time).total_seconds()
-    test_duration = (end_time - start_time).total_seconds()
-
     return {
-        "exp_parameters": experiment,
-        "unloaded_duration_s": unloaded_duration,
-        "download_duration_s": download_duration,
-        "upload_duration_s": upload_duration,
-        "packets_duration_s": packets_duration,
-        "test_duration_s": test_duration,
+        "exp_parameters": " ".join(experiment),
+        "unloaded_duration_s": (unloaded_time - start_time).total_seconds(),
+        "download_duration_s": (download_time - unloaded_time).total_seconds(),
+        "upload_duration_s": (upload_time - download_time).total_seconds(),
+        "packets_duration_s": (upload_time - start_time).total_seconds(),
+        "test_duration_s": (end_time - start_time).total_seconds(),
     }
 
 
@@ -66,21 +66,12 @@ def main():
         sys.exit(1)
 
     measurement_folder = Path(sys.argv[1]).expanduser().resolve()
+    files = sorted(measurement_folder.rglob("test_output.log"))
+
+    with ProcessPoolExecutor(max_workers=max(1, os.cpu_count() - 1)) as pool:
+        rows = [r for r in pool.map(parse_file, files) if r is not None]
+
     csvfile = measurement_folder / "time-analysis.csv"
-
-    rows = []
-    for file_path in sorted(measurement_folder.rglob("test_output.log")):
-        if file_path.is_file():
-            result = parse_file(file_path)
-            if result is None:
-                continue
-
-            rows.append(
-                {
-                    **result,
-                }
-            )
-
     with open(csvfile, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,

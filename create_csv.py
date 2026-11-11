@@ -78,6 +78,7 @@ def parseFile(filename):
                     else:
                         data[f[0]] += " " + split_line[3]
                         data[split_line[3]] = split_line[4]
+                        data[f[0]] += " " + split_line[4]
                 elif line.startswith("Unbounded Baseline RPM:"):
                     split_line = line.split()
                     if "Trimmed" in line:
