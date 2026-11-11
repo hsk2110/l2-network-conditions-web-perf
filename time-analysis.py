@@ -7,6 +7,7 @@ from datetime import datetime
 def parse_file(filename: Path):
     fmt = "%m-%d-%Y %H:%M:%S"
     start_time = None
+    unloaded_time = None
     download_time = None
     upload_time = None
     end_time = None
@@ -28,16 +29,20 @@ def parse_file(filename: Path):
             elif "UTC Go Responsiveness Finished" in line:
                 parts = line.split()
                 end_time = datetime.strptime(f"{parts[0]} {parts[1]}", fmt)
+            elif "Unloaded packet generation ended at" in line:
+                unloaded_time = datetime.strptime(line.split("at ", 1)[1].strip(), fmt)
 
-    if not all([start_time, download_time, upload_time, end_time]):
+    if not all([start_time, unloaded_time, download_time, upload_time, end_time]):
         return None
 
-    download_duration = (download_time - start_time).total_seconds()
+    unloaded_duration = (unloaded_time - start_time).total_seconds()
+    download_duration = (download_time - unloaded_time).total_seconds()
     upload_duration = (upload_time - download_time).total_seconds()
     packets_duration = (upload_time - start_time).total_seconds()
     test_duration = (end_time - start_time).total_seconds()
 
     return {
+        "unloaded_duration_s": unloaded_duration,
         "download_duration_s": download_duration,
         "upload_duration_s": upload_duration,
         "packets_duration_s": packets_duration,
@@ -51,7 +56,7 @@ def main():
         sys.exit(1)
 
     measurement_folder = Path(sys.argv[1]).expanduser().resolve()
-    csvfile = measurement_folder / "output.csv"
+    csvfile = measurement_folder / "time-analysis.csv"
 
     rows = []
     for file_path in sorted(measurement_folder.rglob("test_output.log")):
@@ -70,6 +75,7 @@ def main():
         writer = csv.DictWriter(
             f,
             fieldnames=[
+                "unloaded_duration_s",
                 "download_duration_s",
                 "upload_duration_s",
                 "packets_duration_s",

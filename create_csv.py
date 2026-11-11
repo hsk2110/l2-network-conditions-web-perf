@@ -20,8 +20,8 @@ ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throu
 final_test_output = ['final_rpm_p', 'final_rpm_trimmed']
 # index                  42               43                     44            45                  46             47
 relative_test_output = ['ub_base_rpm_p', 'ub_base_rpm_trimmed', 'base_rpm_p', 'base_rpm_trimmed', 'wc_effect_p', 'wc_effect_trimmed']
-# index  48           49            50
-misc = ['iteration', 'start_time', 'end_time', 'result_time']
+# index  48           
+misc = ['iteration']
 
 fieldnames = fieldnames + environment_parameters + rpm_parameters + dl_test_output + ul_test_output + final_test_output + relative_test_output + misc
 
@@ -55,8 +55,7 @@ def parseFile (filename):
         initData(data)
         download = True
         readResults = False
-        startTime = True
-        for idx, line in enumerate(lines):
+        for line in lines:
             line = line.strip()
             split_line = line.split()
             if not readResults:                        
@@ -67,33 +66,6 @@ def parseFile (filename):
                     else:
                         data[fieldnames[0]] += ' ' + split_line[3]
                         data[split_line[3]] = split_line[4]
-                elif op.contains(line, "UTC Go Responsiveness"):
-                    if startTime:
-                        data[fieldnames[49]] = split_line[0] + ' ' + split_line[1]
-                        startTime = False
-                    else:
-                        data[fieldnames[51]] = split_line[0] + ' ' + split_line[1]
-                        startTime = True
-                        datalist.append(data)
-                        data = {}
-                        initData(data)
-                elif op.contains(line, "Stopping all the load generating data generators"):
-                    # find a timestamp in the previous lines (formats like "YYYY-MM-DD HH:MM:SS ...")
-                    ts = ''
-                    for j in range(idx - 1, -1, -1):
-                        prev = lines[j].strip()
-                        if not prev:
-                            continue
-                        m = re.match(r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})', prev)
-                        if m:
-                            ts = m.group(1)
-                            break
-                        tokens = prev.split()
-                        if len(tokens) >= 2 and re.match(r'\d{4}-\d{2}-\d{2}', tokens[0]) and re.match(r'\d{2}:\d{2}:\d{2}', tokens[1]):
-                            ts = tokens[0] + ' ' + tokens[1]
-                            break
-                    if ts:
-                        data[fieldnames[50]] = ts
                 elif line.startswith("Unbounded Baseline RPM:"):
                     if op.contains(line, "Trimmed"):
                         data[fieldnames[43]] = split_line[3]
@@ -183,6 +155,8 @@ def parseFile (filename):
                         readResults = False
                     else:
                         data[fieldnames[46]] = split_line[5][:-1]
+
+        datalist.append(data)
             
 # if you work on the server you have to edit the path!!!! (dont forget like last time!)
 measurement_folder = Path(f"{sys.argv[1]}")
