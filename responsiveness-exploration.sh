@@ -367,8 +367,8 @@ iterParametersMulti () {
         ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
         
         # start capturing packets
-        # ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
-        # TCPDUMP_PID=$!
+        ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+        TCPDUMP_PID=$!
         
         # start server and get pid for killing later
         ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
@@ -409,8 +409,8 @@ iterParametersMulti () {
         # kill server and tcpdump and delete network
         kill "$SERVER_PID" 2>/dev/null || true
         wait "$SERVER_PID" 2>/dev/null || true
-        # kill "$TCPDUMP_PID" 2>/dev/null || true
-        # wait "$TCPDUMP_PID" 2>/dev/null || true
+        kill "$TCPDUMP_PID" 2>/dev/null || true
+        wait "$TCPDUMP_PID" 2>/dev/null || true
         ./setup-shaping.sh DELETE
         done 
     done
