@@ -5,6 +5,7 @@ if [[ ${EUID} -ne 0 ]]; then
 	exit 2
 fi
 
+# iperf start:
 iperfReference () {
   # iperf (UDP mode; 1Gbit; ul/dl separat messen) test der als referenz dient
   # muss 1x pro environment laufen
@@ -39,14 +40,78 @@ iperfReference () {
   ./setup-shaping.sh DELETE
 }
 
+# building of parameter string that consists of all combinations from testparameters.txt
+declare -a PARAMETER_COMBINATIONS=()
+declare -a PARAMETER_DIRECTORIES=()
+
+build_parameter_array() {
+  PARAMETER_COMBINATIONS=()
+  PARAMETER_DIRECTORIES=()
+
+  local -a names mins maxes steps current
+  local name min max step
+  local i combination directory_name carry next
+
+  while read -r name min max step || [[ -n "$name" ]]; do
+    [[ -z "$name" || "$name" == \#* || "$name" == "default" ]] && continue
+
+    names+=("$name")
+    mins+=("$min")
+    maxes+=("$max")
+    steps+=("$step")
+    current+=("$min")
+  done < rpmparameters/testparameters.txt
+
+  while :; do
+    combination=""
+    directory_name=""
+
+    for ((i = 0; i < ${#names[@]}; i++)); do
+      combination+="--rpm.${names[i]} ${current[i]} "
+      directory_name+="${names[i]}=${current[i]}__"
+    done
+
+    PARAMETER_COMBINATIONS+=("${combination% }")
+    PARAMETER_DIRECTORIES+=("${directory_name%__}")
+
+    carry=1
+
+    for ((i = ${#names[@]} - 1; i >= 0 && carry; i--)); do
+      next=$(bc -l <<< "${current[i]} + ${steps[i]}")
+
+      if [[ "$(bc -l <<< "$next <= ${maxes[i]}")" == "1" ]]; then
+        current[i]="$next"
+        carry=0
+      else
+        current[i]="${mins[i]}"
+      fi
+    done
+
+    (( carry )) && break
+  done
+}
+
 # single dimensional iteration through test parameters
 iterParameters () {
+
+  starttime=$(date +%d-%m-%Y_%H-%M-%S)
   # first we make a directory for the whole measurement:
   # MEASUREMENT_DIR="outputfiles/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
   # if on the server:
   MEASUREMENT_DIR="/data/rpm_measurements/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
   mkdir "${MEASUREMENT_DIR}"
   touch "${MEASUREMENT_DIR}/progress.log"
+
+  # define client command:
+  local -a networkQualityCommand=(
+    ip netns exec client-net
+    ./networkQuality
+    --connect-to 10.237.0.3
+    --insecure-skip-verify
+    --relative-rpm
+    --extended-stats
+  )
+
   # loop over the environments (environment-name, capacities and delay in both directions)
   while IFS= read -r line || [ -n "${line}" ]; do    
     read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}" # read the environment parameters
@@ -105,9 +170,9 @@ iterParameters () {
             echo "iteration ${j}" >> ${TEST_FILE} 
 
             # start client and log it into output
-            ip netns exec client-net ./networkQuality \
-              --connect-to 10.237.0.3 \
-              --insecure-skip-verify -relative-rpm -extended-stats -rpm.timeout 30 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+            "${networkQualityCommand[@]}" \
+              "--rpm.${test_parameter}" "${i}" \
+              >> "$TEST_FILE"
 
             # kill server and tcpdump and delete network
             kill "$SERVER_PID" 2>/dev/null || true
@@ -163,9 +228,8 @@ iterParameters () {
 		      echo "iteration ${j}" >> ${TEST_FILE}
  
           # start client and log it into output
-          ip netns exec client-net ./networkQuality \
-            --connect-to 10.237.0.3 \
-            -extended-stats -relative-rpm -rpm.timeout 30 >> ${TEST_FILE}
+          "${networkQualityCommand[@]}" \
+              >> "$TEST_FILE"
 
           # kill server and tcpdump and delete network
           kill "$SERVER_PID" 2>/dev/null || true
@@ -222,9 +286,9 @@ iterParameters () {
 
             # start client and log it into output
             # HAVE EDITED IT FOR TWO DIM EDIT IT OUT LATER
-            ip netns exec client-net ./networkQuality \
-              --connect-to 10.237.0.3 \
-              --insecure-skip-verify -extended-stats -relative-rpm -rpm.timeout 30 --"rpm.${test_parameter}" ${i} >> ${TEST_FILE}
+            "${networkQualityCommand[@]}" \
+              "--rpm.${test_parameter}" "${i}" \
+              >> "$TEST_FILE"
 
             # kill server and delete network
             kill "$SERVER_PID" 2>/dev/null || true
@@ -238,83 +302,129 @@ iterParameters () {
       fi 
     done < rpmparameters/testparameters.txt
   done < rpmparameters/environments.txt
-  echo "test done" > "${MEASUREMENT_DIR}/progress.log"
+  endtime=$(date +%d-%m-%Y_%H-%M-%S)
+  {
+    echo "test done"
+    echo "started at: ${starttime}"
+    echo "ended at: ${endtime}"
+  } > "${MEASUREMENT_DIR}/progress.log"
 }
 
-# iterate through a pair of test parameters
-iterParametersTwoDims () {
+
+# multi dimensional iteration through test parameters
+iterParametersMulti () {
+  starttime=$(date +%d-%m-%Y_%H-%M-%S)
+  # first we make a directory for the whole measurement:
+  # MEASUREMENT_DIR="outputfiles/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
+  # if on the server:
+  MEASUREMENT_DIR="/data/rpm_measurements/measurement_$(date +%d-%m-%Y_%H-%M-%S)"
+  mkdir -p "${MEASUREMENT_DIR}"
+  touch "${MEASUREMENT_DIR}/progress.log"
+
+  # define client command:
+  local -a networkQualityCommand=(
+    ip netns exec client-net
+    ./networkQuality
+    --connect-to 10.237.0.3
+    --insecure-skip-verify
+    --relative-rpm
+    --extended-stats
+  )
+
+  # we build the different parameter combis as a string array:
+  build_parameter_array
+
   # loop over the environments (environment-name, capacities and delay in both directions)
   while IFS= read -r line || [ -n "${line}" ]; do    
-    read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}"  
-    # This loop goes over the test parameter pairs defined in testparameters2.txt
-    while IFS= read -r line || [ -n "$line" ]; do
-      read -r test_parameter0 test_parameter1 <<< "$line"
+    read -r envname dl_capacity ul_capacity dl_delay_from_inet ul_delay_to_inet <<< "${line}" # read the environment parameters
+    mkdir "${MEASUREMENT_DIR}/${envname}"
+    # loop over the test-parameters in the parameter combination array:  
+    for ((index = 0; index < ${#PARAMETER_COMBINATIONS[@]}; index++)); do
+      # combinations: the string that goes after the command
+      # directory_name: the string that defines the dir-name
+      # rpm_parameters: current combination
+      combination="${PARAMETER_COMBINATIONS[index]}"
+      directory_name="${PARAMETER_DIRECTORIES[index]}"
+      read -r -a rpm_parameters <<< "$combination"
+      TEST_DIR="${MEASUREMENT_DIR}/${envname}/${directory_name}"
+      mkdir -p "$TEST_DIR"                    
+      # we do 100 iterations
+      for j in {1..100}; do
+        echo "currently: ${envname}_${directory_name}_iteration${j}" > "${MEASUREMENT_DIR}/progress.log"
+        
+        iteration_dir="${TEST_DIR}/${j}"
+        mkdir -p "${iteration_dir}"
 
-      # in this loop we get the predefined range of values for each test parameter
-      while IFS= read -r line || [ -n "$line" ]; do
-        read -r parameter_name min max step <<< "${line}"
-        if [["$parameter_name" == "$test_parameter0"]]; then
-          i=min
-          max0=max
-          step0=step
-        elif [ "$first_word" = "$target2" ]; then
-          j=min
-          max0=max
-          step0=step
-        fi
-      done < rpmparameters/testparameters.txt
-      
-      # now we do 2 loops; each over a testparameter
-      while [ $i -le $max0]; do
-        while [ $j -le $max1]; do
-          parameters=(--rpm.${test_parameter0} ${i} --rpm.${test_parameter1} ${j}) # parameter string that we append behind the client command
-          # we do 100 iterations
-          for k in {1..100}; do
-            ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
-            # start server and save pid for killing later
-            ip netns exec server-net ./networkqualityd -create-cert --public-name networkquality.example.com --listen-addr 10.237.0.3 \
-              >server.log 2>&1 &
-            server_pid=$!
-            # Wait until the server port is reachable
-            ip netns exec client-net bash -c '
-              for i in {1..300}; do
-                timeout 0.2 bash -c "</dev/tcp/10.237.0.3/4043" >/dev/null 2>&1 && exit 0
-                sleep 0.02
-              done
-              echo "Timed out waiting for 10.237.0.3:4043 from client-net" >&2
-              exit 1
-            ' || { kill "$server_pid" 2>/dev/null || true; ./setup-shaping.sh DELETE; exit 1; }
+        TEST_FILE="${iteration_dir}/test_output.log"
+        PCAP_FILE="${iteration_dir}/traffic.pcap"
+        KEYS_FILE="${iteration_dir}/test_keys.keys"
+        SERVER_FILE="${iteration_dir}/server_output.log"
 
-            # log the parameters into output.txt
-            echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}" >> output.txt
-            echo "Testing network environment ${envname} ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms"
-            echo "Testing test parameter ${test_parameter0} ${i}"
-            echo "Testing test parameter ${test_parameter0} ${i}" >> output.txt
-            echo "Testing test parameter ${test_parameter1} ${j}"
-            echo "Testing test parameter ${test_parameter1} ${j}" >> output.txt
-            echo "iteration ${k}"
-            echo "iteration ${k}" >> output.txt
-			
-            # start client with the parameters
-            ip netns exec client-net ./networkQuality \
-              --url https://networkquality.example.com:4043/.well-known/nq \
-              --insecure-skip-verify -extended-stats -relative-rpm "${parameters[@]}" >> output.txt
-            printf "\n" >> output.txt
-            # kill server and delete network
-            kill "$server_pid" 2>/dev/null || true
-            ./setup-shaping.sh DELETE
-          done 
-          ((j+=step1))
-        done
-        ((i+=step0))
-      done
-    done < rpmparameters/testparameters2.txt
-    printf "\n" >> output.txt
+        touch ${TEST_FILE}
+        cat /dev/null > ${TEST_FILE}  
+
+
+        ./setup-shaping.sh CREATE ${dl_capacity}Mbit ${ul_capacity}Mbit ${dl_delay_from_inet}ms ${ul_delay_to_inet}ms
+        
+        # start capturing packets
+        # ip netns exec bottleneck-net tcpdump -s 100 -i br-client-inet -w "${PCAP_FILE}" 2> /tmp/tcpdump.log  &
+        # TCPDUMP_PID=$!
+        
+        # start server and get pid for killing later
+        ip netns exec server-net ./networkqualityd -create-cert --listen-addr 10.237.0.3 \
+          >${SERVER_FILE} 2>&1 &
+        SERVER_PID=$!
+        
+        # Wait until the server port is reachable
+        ip netns exec client-net bash -c '
+          for i in {1..300}; do
+            timeout 0.2 bash -c "</dev/tcp/10.237.0.3/4043" >/dev/null 2>&1 && exit 0
+            sleep 0.02
+          done
+          echo "Timed out waiting for 10.237.0.3:4043 from client-net" >&2
+          exit 1
+        ' || { kill "$SERVER_PID" 2>/dev/null || true; ./setup-shaping.sh DELETE; exit 1; }
+        
+        # log the set test parameters into output
+        {
+          echo "Testing network environment ${envname} ${dl_capacity} ${ul_capacity} ${dl_delay_from_inet} ${ul_delay_to_inet}"
+
+          for ((parameter_index = 0;
+                parameter_index < ${#rpm_parameters[@]};
+                parameter_index += 2)); do
+            parameter_name="${rpm_parameters[parameter_index]#--rpm.}"
+            parameter_value="${rpm_parameters[parameter_index + 1]}"
+            echo "Testing parameter ${parameter_name}=${parameter_value}"
+          done
+
+          echo "iteration ${j}"
+        } >> "$TEST_FILE"
+        
+
+        # start client and log it into output
+        "${networkQualityCommand[@]}" \
+          "${rpm_parameters[@]}" \
+          >> "$TEST_FILE"
+
+        # kill server and tcpdump and delete network
+        kill "$SERVER_PID" 2>/dev/null || true
+        wait "$SERVER_PID" 2>/dev/null || true
+        # kill "$TCPDUMP_PID" 2>/dev/null || true
+        # wait "$TCPDUMP_PID" 2>/dev/null || true
+        ./setup-shaping.sh DELETE
+        done 
+    done
   done < rpmparameters/environments.txt
+  endtime=$(date +%d-%m-%Y_%H-%M-%S)
+  {
+    echo "test done"
+    echo "started at: ${starttime}"
+    echo "ended at: ${endtime}"
+  } > "${MEASUREMENT_DIR}/progress.log"
 }
 
 
-
-iterParameters
+# iterParameters
+iterParametersMulti
 # touch "${MEASUREMENT_DIR}/output.csv"
 # python3 create_csv.py "${MEASUREMENT_DIR}" # this will create a csv file with the output.txt
