@@ -1,8 +1,7 @@
 import csv
-import operator as op
 import os
-import re
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 # index        0
@@ -20,12 +19,11 @@ ul_test_output = ['ul_stable_throughput',  'ul_stable_responsiveness', 'ul_throu
 final_test_output = ['final_rpm_p', 'final_rpm_trimmed']
 # index                  42               43                     44            45                  46             47
 relative_test_output = ['ub_base_rpm_p', 'ub_base_rpm_trimmed', 'base_rpm_p', 'base_rpm_trimmed', 'wc_effect_p', 'wc_effect_trimmed']
-# index  48           
+# index  48
 misc = ['iteration']
 
 fieldnames = fieldnames + environment_parameters + rpm_parameters + dl_test_output + ul_test_output + final_test_output + relative_test_output + misc
 
-datalist = []
 
 def initData(data):
     for i in range(0, 5):
@@ -45,22 +43,76 @@ def initData(data):
     data[fieldnames[17]] = 'True'   #dl_stable_responsiveness
     data[fieldnames[28]] = 'True'   #ul_stable_throughput
     data[fieldnames[29]] = 'True'   #ul_stable_responsiveness
+    data[fieldnames[48]] = ''       #iteration
 
 
-# ...existing code...
-import csv
-import os
-import sys
-from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
+def parseParameterLine(split_line):
+    """Return (key, value) pairs of a 'Testing ... parameter' line.
 
-# ...existing code...
+    multi-dim: 'Testing parameter inc=4'      -> [('inc', '4')]
+    1-D:       'Testing test parameter mps 40' -> [('mps', '40')]
+    """
+    if any("=" in tok for tok in split_line):
+        return [tuple(tok.split("=", 1)) for tok in split_line[2:] if "=" in tok]
+    return [(split_line[3], split_line[4])]
+
+
+def setParameter(data, key, value, filename):
+    if key not in rpm_parameters:
+        print(f"WARNING: unknown parameter '{key}' in {filename}, skipped")
+        return False
+    data[key] = value
+    data[fieldnames[0]] += " " + key + "=" + value
+    return True
+
+
+def parseParameterFolder(name):
+    """'inc=1__mnp=16__mps=100' -> {'inc': '1', 'mnp': '16', 'mps': '100'}; {} if not that pattern."""
+    if "=" not in name:
+        return {}
+    params = {}
+    for part in name.split("__"):
+        if "=" in part:
+            key, value = part.split("=", 1)
+            params[key] = value
+    return params
+
+
+def checkPath(data, filename, log_params):
+    """Cross-check / fill data from the folder layout
+    measurement_x/<Network>/<k=v__k=v...>/<run>/test_output.log"""
+    try:
+        parts = Path(filename).relative_to(measurement_folder).parts
+    except ValueError:
+        return
+    if len(parts) < 4:
+        return
+
+    network, param_folder, run = parts[-4], parts[-3], parts[-2]
+
+    if run.isdigit() and not data[fieldnames[48]]:
+        data[fieldnames[48]] = run
+
+    folder_params = parseParameterFolder(param_folder)
+    if folder_params:
+        for key, value in folder_params.items():
+            if key in log_params:
+                if log_params[key] != value:
+                    print(f"WARNING: {filename}: folder says {key}={value}, log says {key}={log_params[key]}")
+            else:
+                setParameter(data, key, value, filename)
+
+        env_name = data[fieldnames[0]].split(" ", 1)[0]
+        if env_name and env_name != network:
+            print(f"WARNING: {filename}: folder network '{network}' != log network '{env_name}'")
+
 
 def parseFile(filename):
     data = {}
     initData(data)
     download = True
     readResults = False
+    log_params = {}
     f = fieldnames  # local alias for slightly faster lookups
 
     with open(filename, "r") as file:
@@ -76,9 +128,9 @@ def parseFile(filename):
                         for i in range(0, 5):
                             data[f[i]] = split_line[i + 3]
                     else:
-                        data[f[0]] += " " + split_line[3]
-                        data[split_line[3]] = split_line[4]
-                        data[f[0]] += " " + split_line[4]
+                        for key, value in parseParameterLine(split_line):
+                            if setParameter(data, key, value, filename):
+                                log_params[key] = value
                 elif line.startswith("Unbounded Baseline RPM:"):
                     split_line = line.split()
                     if "Trimmed" in line:
@@ -152,7 +204,14 @@ def parseFile(filename):
                     else:
                         data[f[46]] = split_line[5][:-1]
 
+    checkPath(data, filename, log_params)
     return data
+
+
+def sortKey(data):
+    it = data[fieldnames[48]]
+    return (data[fieldnames[0]], int(it) if it.isdigit() else -1)
+
 
 # if you work on the server you have to edit the path!!!! (dont forget like last time!)
 measurement_folder = Path(sys.argv[1])
@@ -163,11 +222,12 @@ files = [p for p in measurement_folder.rglob("test_output.log") if p.is_file()]
 with ThreadPoolExecutor(max_workers=min(32, (os.cpu_count() or 1) + 4)) as ex:
     datalist = list(ex.map(parseFile, files))
 
+datalist.sort(key=sortKey)
+
 # write the datalist into the csv file
 with open(csvfile, "w", newline="") as f_out:
     writer = csv.DictWriter(f_out, fieldnames=fieldnames)
     writer.writeheader()
     writer.writerows(datalist)
 
-print("created csv")
-# ...existing code...
+print(f"created csv with {len(datalist)} rows: {csvfile}")
